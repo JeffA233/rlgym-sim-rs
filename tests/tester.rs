@@ -4,17 +4,16 @@ use std::{
     time::*};
 
 // use std::collections::HashMap;
-// use action_parsers::necto_parsers_3::NectoAction;
-// use rlgym_sim_rs::action_parsers::necto_parser_2::NectoAction;
 use rlgym_sim_rs::action_parsers::test_parser::TestAction;
+use rlgym_sim_rs::conditionals::common_conditions::{TimeoutCondition, GoalScoredCondition};
+use rlgym_sim_rs::conditionals::terminal_condition::TerminalCondition;
 // use communication::communication_handler::f32vec_as_u8_slice;
-use rlgym_sim_rs::conditionals::custom_conditions::CombinedTerminalConditions;
 // use rlgym_sim_rs::envs::game_match::GameMatch;
 use rlgym_sim_rs::gamestates::game_state::GameState;
 // use rlgym_sim_rs::gamestates::physics_object::Position;
 use rlgym_sim_rs::make;
-use rlgym_sim_rs::obs_builders::aspo4_array_2::AdvancedObsPadderStacker2;
-use rlgym_sim_rs::reward_functions::custom_rewards::get_custom_reward_func_tester;
+use rlgym_sim_rs::obs_builders::advanced_obs::AdvancedObs;
+use rlgym_sim_rs::reward_functions::common_rewards::misc_rewards::EventReward;
 use rlgym_sim_rs::state_setters::default_state::{
     AgentBallHitStateTester, 
     BlueGoalStateTester, 
@@ -22,49 +21,42 @@ use rlgym_sim_rs::state_setters::default_state::{
     // ExactStateTester, 
     DemoStateTester
 };
-// use state_setters::random_state::RandomState;
 
 use rlgym_sim_rs::{
-    // action_parsers::discrete_act::DiscreteAction,
-    // conditionals::common_conditions::TimeoutCondition,
-    // envs::game_match::GameConfig,
-    // gamestates::physics_object::RotationMatrix,
     obs_builders::obs_builder::ObsBuilder,
-    // reward_functions::default_reward::RewardFn,
-    state_setters::{
-        // custom_state_setters::custom_state_setters,
-        default_state::{
-            // DefaultState, 
-            DefaultStateTester},
-    },
+    state_setters::default_state::DefaultStateTester,
 };
-// use crate::state_setters::state_setter::StateSetter;
 
-// pub mod action_parsers;
-// pub mod common_values;
-// pub mod communication;
-// pub mod conditionals;
-// pub mod envs;
-// pub mod gamelaunch;
-// pub mod gamestates;
-// pub mod math;
-// pub mod obs_builders;
-// pub mod reward_functions;
-// pub mod state_setters;
-// pub mod gym;
-// pub mod make;
-// pub mod sim_wrapper;
-// use std::fs::File;
-// use std::fs::*;
-// use std::io::{BufWriter, Write, stdin};
-// use std::env::*;
-// use std::path::Path;
-// use std::{thread, time};
-// use crossbeam_channel::{bounded, unbounded, Sender, Receiver};
+pub struct CombinedTerminalConditions {
+    timeout_condition: TimeoutCondition,
+    goal_scored_condition: GoalScoredCondition,
+}
 
-// use gamelaunch::launch;
+impl CombinedTerminalConditions {
+    pub fn new(tick_skip: usize) -> Self {
+        CombinedTerminalConditions {
+            timeout_condition: TimeoutCondition::new(400 * 120 / tick_skip as i64),
+            goal_scored_condition: GoalScoredCondition::new(),
+        }
+    }
+}
 
-// math.norm_func();
+impl TerminalCondition for CombinedTerminalConditions {
+    fn reset(&mut self, _initial_state: &GameState) {
+        self.timeout_condition.reset(_initial_state);
+        self.goal_scored_condition.reset(_initial_state);
+    }
+
+    fn is_terminal(&mut self, current_state: &GameState) -> bool {
+        [
+            self.timeout_condition.is_terminal(current_state),
+            self.goal_scored_condition.is_terminal(current_state),
+        ]
+        .iter()
+        .any(|x| x == &true)
+    }
+}
+
 
 #[test]
 fn main() {
@@ -89,8 +81,8 @@ fn main() {
     vec.extend(obs);
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
     // let term_cond = Box::new(TimeoutCondition::new(225));
-    let reward_fn = get_custom_reward_func_tester();
-    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObsPadderStacker2::new(None, Some(0)));
+    let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
+    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
     let obs_build_vec = vec![obs_build];
     let act_parse = Box::new(TestAction::new());
     // let act_parse = Box::new(DiscreteAction::new());
@@ -464,6 +456,7 @@ fn main() {
         rew_val += val;
     }
     // let (_obs, reward, done, _info) = gym.step(actions.clone());
+    assert!(touch_counter > 0);
     let duration = start_time.elapsed();
     let seconds_elapsed = duration.as_secs_f64();
     println!("seconds elapsed: {seconds_elapsed}");
@@ -474,8 +467,8 @@ fn main() {
     // now let's make sure demos are working ---------------------------------------------------------------------------------------------------
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
     // let term_cond = Box::new(TimeoutCondition::new(225));
-    let reward_fn = get_custom_reward_func_tester();
-    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObsPadderStacker2::new(None, Some(0)));
+    let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
+    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
     let obs_build_vec = vec![obs_build];
     let act_parse = Box::new(TestAction::new());
     let state_set = Box::new(DefaultStateTester::new());
@@ -485,7 +478,7 @@ fn main() {
     let tick_skip = 1;
     let game_config = make::MakeConfig {
         tick_skip: Some(tick_skip),
-        spawn_opponents: Some(false),
+        spawn_opponents: Some(true),
         team_size: Some(1),
         gravity: None,
         boost_consumption: None,
