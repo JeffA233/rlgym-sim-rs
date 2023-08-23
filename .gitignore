@@ -97,5 +97,8 @@ rocketsim_examples/stat_tracker.rs
 # format stuff
 rustfmt.toml
 
+# rust stuff
+.cargo
+
 # maturin old stuff
 pyproject.toml_old
