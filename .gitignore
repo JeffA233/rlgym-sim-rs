@@ -72,7 +72,6 @@ docs/_build/
 .python-version
 
 # meshes
-collision_meshes/
 collision_meshes/soccar/mesh_0.cmf
 collision_meshes/soccar/mesh_1.cmf
 collision_meshes/soccar/mesh_2.cmf
