@@ -1,0 +1,540 @@
+use rocketsim_rs::{
+    cxx::UniquePtr,
+    math::{RotMat, Vec3},
+    sim::{Arena, CarConfig, CarControls, Team, EBoostPadState},
+    GameState as GameState_sim,
+};
+// use std::cell::RefCell;
+use std::{collections::HashMap, sync::RwLock};
+
+use crate::{
+    common_values::{BLUE_TEAM, GRAVITY_Z, ORANGE_TEAM, ROCKETSIM_BOOST_PER_SEC},
+    gamestates::{
+        game_state::GameState as GameState_rlgym,
+        physics_object::{PhysicsObject, Position, Quaternion, Velocity},
+        player_data::PlayerData,
+    },
+    state_setters::wrappers::state_wrapper::StateWrapper,
+};
+
+/// used as a means to store stats for a particular agent
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Stats {
+    pub goals: u16,
+    pub own_goals: u16,
+    pub assists: u16,
+    pub demolitions: u16,
+    pub demoed: u16,
+    pub shots: u16,
+    pub saves: u16,
+}
+
+pub struct RocketsimWrapper {
+    arena: UniquePtr<Arena>,
+    car_ids: Vec<u32>,
+    tick_skip: usize,
+    // blue_score: i32,
+    // orange_score: i32,
+    jump_timer: f32,
+    prev_touched_ticks: HashMap<u32, u64>,
+}
+
+impl RocketsimWrapper {
+    thread_local!(
+        static BLUE_SCORE: RwLock<i32> = RwLock::new(0);
+        static ORANGE_SCORE: RwLock<i32> = RwLock::new(0);
+        static LAST_GOAL_TICK: RwLock<u64> = RwLock::new(0);
+        static STATS: RwLock<Vec<(u32, Stats)>> = RwLock::new(Vec::new());
+    );
+
+    pub fn new(spawn_opponents: bool, team_size: usize, tick_skip: usize, gravity: f32, boost_consumption: f32) -> Self {
+        // TODO: input more game config stuff here
+        // rocketsim start
+        // required only once for all threads so we should do it before the multithreading parts instead of here
+        // rocketsim_rs::init(None);
+        let mut rocket_sim_instance = Arena::default_standard();
+
+        let mut sim_mutator_config = rocket_sim_instance.get_mutator_config();
+        sim_mutator_config.gravity.z = GRAVITY_Z * gravity;
+        sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * boost_consumption;
+        rocket_sim_instance.pin_mut().set_mutator_config(sim_mutator_config);
+
+        rocket_sim_instance.pin_mut().reset_to_random_kickoff(None);
+        let mut car_ids = Vec::new();
+        if spawn_opponents {
+            // spawn blue cars
+            for _ in 0..team_size {
+                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            }
+            // spawn orange cars
+            for _ in 0..team_size {
+                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+            }
+        } else {
+            // spawn blue cars
+            for _ in 0..team_size {
+                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            }
+        }
+
+        // init stats
+        Self::STATS.with(|stats| {
+            let mut guard = stats.write().unwrap();
+            for id in car_ids.iter() {
+                guard.push((*id, Stats::default()));
+            }
+        });
+
+        rocket_sim_instance.pin_mut().set_goal_scored_callback(
+            |mut arena, team, tick_skip| {
+                let curr_tick = arena.as_mut().get_tick_count();
+                let tick_skip = tick_skip as u64;
+
+                // -- This section is for orange and blue scores --
+                let last_goal_tick = Self::LAST_GOAL_TICK.with(|val| *val.read().unwrap());
+
+                // make it so that tick skip doesn't count multiple goals scored
+                if curr_tick < last_goal_tick + tick_skip {
+                    Self::LAST_GOAL_TICK.with(|val| {
+                        let mut ref_val = val.write().unwrap();
+                        *ref_val = curr_tick;
+                    });
+                    return;
+                }
+
+                if team == Team::BLUE {
+                    Self::BLUE_SCORE.with(|val| *val.write().unwrap() += 1);
+                } else {
+                    Self::ORANGE_SCORE.with(|val| *val.write().unwrap() += 1);
+                }
+
+                // value that holds the last tick the goal was scored from
+                Self::LAST_GOAL_TICK.with(|val| *val.write().unwrap() = curr_tick);
+                // -- end of section --
+
+                // -- start of stats section --
+                // section adapted from stat_tracker in bindings made by VirxEC
+
+                // Collect all valid ball touches
+                let mut all_ball_touches = arena
+                    .as_mut()
+                    .get_car_infos()
+                    .into_iter()
+                    .filter_map(|car_info| {
+                        if car_info.state.ball_hit_info.is_valid {
+                            Some((car_info.id, car_info.team, car_info.state.ball_hit_info.tick_count_when_hit))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                // Sort by ball touch time
+                all_ball_touches.sort_by_key(|(_, _, tick_count_when_hit)| *tick_count_when_hit);
+
+                // Sort ball touches by team
+                let ball_touches = [
+                    all_ball_touches.iter().filter(|(_, team, _)| *team == Team::BLUE).map(|(id, _, _)| *id).collect::<Vec<_>>(),
+                    all_ball_touches
+                        .iter()
+                        .filter(|(_, team, _)| *team == Team::ORANGE)
+                        .map(|(id, _, _)| *id)
+                        .collect::<Vec<_>>(),
+                ];
+
+                // update stats
+                let t_index = team as u8 as usize;
+
+                Self::STATS.with(|stats| {
+                    // it's possible no car touched the ball on the team that got the goal
+                    // so ensure that were was at least one ball touch
+                    if !ball_touches[t_index].is_empty() {
+                        // the latest ball touch on the same team is the scorer
+                        let scorer = ball_touches[t_index].last().copied().unwrap();
+                        // println!("Car {scorer} SCORED");
+
+                        let mut guard = stats.write().unwrap();
+                        // +1 to the car's goals stat
+                        guard.iter_mut().find(|(id, _)| *id == scorer).unwrap().1.goals += 1;
+
+                        if ball_touches[t_index].len() > 1 {
+                            // if there were two ball touches, they get the assist
+                            let assist = ball_touches[t_index][ball_touches[t_index].len() - 2];
+
+                            // Get the tick count of when the scorer and assist touched the ball
+                            let scorer_tick = arena.as_mut().get_car(scorer).ball_hit_info.tick_count_when_hit;
+                            let assist_tick = arena.as_mut().get_car(assist).ball_hit_info.tick_count_when_hit;
+
+                            // ensure that the assist is < 5s before the touch of the scoring player
+                            if (assist_tick - scorer_tick) as f32 / arena.get_tick_rate() < 5. {
+                                // println!("CAR {assist} got an ASSIST");
+
+                                // +1 to the car's assists stat
+                                guard.iter_mut().find(|(id, _)| id == &assist).unwrap().1.assists += 1;
+                            }
+                        }
+
+                        if let Some(latest_hit_id) = all_ball_touches.last().map(|(id, _, _)| *id) {
+                            // if the last hit was not the scorer, they get the own goal
+                            // rocket league tracks this stat in secret and isn't shown on the scoreboard
+                            if latest_hit_id != scorer {
+                                // println!("CAR {latest_hit_id} OWN GOALED");
+
+                                // +1 to the car's own goals stat
+                                guard.iter_mut().find(|(id, _)| *id == latest_hit_id).unwrap().1.own_goals += 1;
+                            }
+                        }
+                    }
+                });
+                // -- end of stats section --
+            },
+            tick_skip,
+        );
+
+        rocket_sim_instance.pin_mut().set_car_bump_callback(
+            |_, bumper, victim, is_demo, _| {
+                // If there was a demo (and not just a normal bump)
+                if is_demo {
+                    // +1 to the bumper's demolitions stat
+                    Self::STATS.with(|stats| {
+                        let mut guard = stats.write().unwrap();
+                        guard.iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
+                        guard.iter_mut().find(|(id, _)| *id == victim).unwrap().1.demoed += 1;
+                    });
+                }
+            },
+            0,
+        );
+
+        RocketsimWrapper {
+            arena: rocket_sim_instance,
+            car_ids,
+            tick_skip,
+            jump_timer: 1.25,
+            prev_touched_ticks: HashMap::new(),
+        }
+    }
+
+    pub fn set_state(&mut self, state_wrapper: StateWrapper) -> GameState_rlgym {
+        let mut sim_state = self.arena.pin_mut().get_game_state();
+
+        // reset boost pads
+        // old version
+        // for index in 0..self.arena.num_pads() {
+        //     self.arena.pin_mut().set_pad_state(index, EBoostPadState { is_active: true,..Default::default()})
+        // }
+
+        // new version
+        for mut pad in sim_state.pads.iter_mut() {
+            pad.state = EBoostPadState { is_active: true,..Default::default() }
+            // pad.state.cooldown = 0.;
+        };
+
+        // do cars
+        // old version
+        // for (car_id, car_wrapper) in self.car_ids.iter().zip(state_wrapper.cars) {
+        //     // custom initial car state
+        //     let mut car_state = self.arena.pin_mut().get_car(*car_id);
+
+        //     car_state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
+        //     car_state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
+        //     car_state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
+        //     let wrapper_rot_mtx = car_wrapper.rotation.euler_to_rotation();
+        //     car_state.rot_mat = RotMat {
+        //         forward: Vec3::new(wrapper_rot_mtx.array[0][0], wrapper_rot_mtx.array[1][0], wrapper_rot_mtx.array[2][0]),
+        //         right: Vec3::new(wrapper_rot_mtx.array[0][1], wrapper_rot_mtx.array[1][1], wrapper_rot_mtx.array[2][1]),
+        //         up: Vec3::new(wrapper_rot_mtx.array[0][2], wrapper_rot_mtx.array[1][2], wrapper_rot_mtx.array[2][2]),
+        //     };
+
+        //     if self.arena.get_mutator_config().boost_used_per_second == 0. {
+        //         car_state.boost = 100.;
+        //     } else {
+        //         car_state.boost = car_wrapper.boost * 100.;
+        //     }
+
+        //     // println!("Created custom car state");
+
+        //     // If car_id can't be found in arena than this will return Err
+        //     self.arena.pin_mut().set_car(*car_id, car_state).unwrap();
+
+        //     self.arena.pin_mut().set_car_controls(*car_id, CarControls::default()).unwrap();
+
+        //     // println!("Set car ({car_id}) state");
+        // }
+
+        // new version
+        for (mut car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
+            car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
+            car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
+            car_info.state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
+
+            let wrapper_rot_mtx = car_wrapper.rotation.euler_to_rotation();
+            car_info.state.rot_mat = RotMat {
+                forward: Vec3::new(wrapper_rot_mtx.array[0][0], wrapper_rot_mtx.array[1][0], wrapper_rot_mtx.array[2][0]),
+                right: Vec3::new(wrapper_rot_mtx.array[0][1], wrapper_rot_mtx.array[1][1], wrapper_rot_mtx.array[2][1]),
+                up: Vec3::new(wrapper_rot_mtx.array[0][2], wrapper_rot_mtx.array[1][2], wrapper_rot_mtx.array[2][2]),
+            };
+
+            if self.arena.get_mutator_config().boost_used_per_second == 0. {
+                car_info.state.boost = 100.;
+            } else {
+                car_info.state.boost = car_wrapper.boost * 100.;
+            }
+
+            self.arena.pin_mut().set_car_controls(car_info.id, CarControls::default()).unwrap();
+        }
+
+        // do ball
+        // old version
+        // let mut ball_state = self.arena.pin_mut().get_ball();
+
+        // ball_state.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
+        // ball_state.vel = Vec3::new(
+        //     state_wrapper.ball.linear_velocity.x,
+        //     state_wrapper.ball.linear_velocity.y,
+        //     state_wrapper.ball.linear_velocity.z,
+        // );
+        // ball_state.ang_vel = Vec3::new(
+        //     state_wrapper.ball.angular_velocity.x,
+        //     state_wrapper.ball.angular_velocity.y,
+        //     state_wrapper.ball.angular_velocity.z,
+        // );
+
+        // self.arena.pin_mut().set_ball(ball_state);
+
+        // new version
+        sim_state.ball.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
+        sim_state.ball.vel = Vec3::new(
+            state_wrapper.ball.linear_velocity.x,
+            state_wrapper.ball.linear_velocity.y,
+            state_wrapper.ball.linear_velocity.z,
+        );
+        sim_state.ball.ang_vel = Vec3::new(
+            state_wrapper.ball.angular_velocity.x,
+            state_wrapper.ball.angular_velocity.y,
+            state_wrapper.ball.angular_velocity.z,
+        );
+
+        self.arena.pin_mut().set_game_state(&sim_state).unwrap();
+
+        // println!("Set ball state");
+        // let sim_state = self.arena.pin_mut().get_game_state();
+        // let gamestate = self.decode_gamestate(sim_state);
+        self.get_rlgym_gamestate()
+    }
+
+    fn decode_gamestate(&mut self, sim_gamestate: GameState_sim) -> GameState_rlgym {
+        let curr_tick = self.arena.get_tick_count();
+
+        let mut ball = PhysicsObject::new();
+        ball.position = Position {
+            x: sim_gamestate.ball.pos.x,
+            y: sim_gamestate.ball.pos.y,
+            z: sim_gamestate.ball.pos.z,
+        };
+        ball.linear_velocity = Velocity {
+            x: sim_gamestate.ball.vel.x,
+            y: sim_gamestate.ball.vel.y,
+            z: sim_gamestate.ball.vel.z,
+        };
+        ball.angular_velocity = Velocity {
+            x: sim_gamestate.ball.ang_vel.x,
+            y: sim_gamestate.ball.ang_vel.y,
+            z: sim_gamestate.ball.ang_vel.z,
+        };
+
+        let mut inverted_ball = PhysicsObject::new();
+        inverted_ball.position = Position {
+            x: -sim_gamestate.ball.pos.x,
+            y: -sim_gamestate.ball.pos.y,
+            z: sim_gamestate.ball.pos.z,
+        };
+        inverted_ball.linear_velocity = Velocity {
+            x: -sim_gamestate.ball.vel.x,
+            y: -sim_gamestate.ball.vel.y,
+            z: sim_gamestate.ball.vel.z,
+        };
+        inverted_ball.angular_velocity = Velocity {
+            x: -sim_gamestate.ball.ang_vel.x,
+            y: -sim_gamestate.ball.ang_vel.y,
+            z: sim_gamestate.ball.ang_vel.z,
+        };
+
+        let mut players = Vec::with_capacity(sim_gamestate.cars.len());
+
+        let orange_score = Self::ORANGE_SCORE.with(|val| *val.read().unwrap());
+        let blue_score = Self::BLUE_SCORE.with(|val| *val.read().unwrap());
+
+        for car_info in sim_gamestate.cars {
+            let car = car_info.state;
+
+            let mut car_data = PhysicsObject::new();
+            car_data.position = Position {
+                x: car.pos.x,
+                y: car.pos.y,
+                z: car.pos.z,
+            };
+            car_data.linear_velocity = Velocity {
+                x: car.vel.x,
+                y: car.vel.y,
+                z: car.vel.z,
+            };
+            car_data.angular_velocity = Velocity {
+                x: car.ang_vel.x,
+                y: car.ang_vel.y,
+                z: car.ang_vel.z,
+            };
+            
+            car_data.rotation_mtx.array[0] = [car.rot_mat.forward.x, car.rot_mat.right.x, car.rot_mat.up.x];
+            car_data.rotation_mtx.array[1] = [car.rot_mat.forward.y, car.rot_mat.right.y, car.rot_mat.up.y];
+            car_data.rotation_mtx.array[2] = [car.rot_mat.forward.z, car.rot_mat.right.z, car.rot_mat.up.z];
+
+            car_data.quaternion = car_data.rotation_mtx.rotation_to_quaternion();
+            car_data.has_computed_rot_mtx = true;
+
+            let mut inverted_car_data = PhysicsObject::new();
+            inverted_car_data.position = Position {
+                x: -car.pos.x,
+                y: -car.pos.y,
+                z: car.pos.z,
+            };
+            inverted_car_data.linear_velocity = Velocity {
+                x: -car.vel.x,
+                y: -car.vel.y,
+                z: car.vel.z,
+            };
+            inverted_car_data.angular_velocity = Velocity {
+                x: -car.ang_vel.x,
+                y: -car.ang_vel.y,
+                z: car.ang_vel.z,
+            };
+            inverted_car_data.quaternion = Quaternion {
+                w: car_data.quaternion.z,
+                x: car_data.quaternion.y,
+                y: -car_data.quaternion.x,
+                z: -car_data.quaternion.w,
+            };
+            // no particular reason to do this I think other than to match that car_data also has a computed rot_mtx
+            // previously the behavior was that each clone of the gamestate would have to recompute if not already computed
+            inverted_car_data.rotation_mtx();
+
+            // need to make sure there is a value since the hashmap may not be populated yet
+            let prev_touched_ticks_op = self.prev_touched_ticks.get(&car_info.id);
+            let prev_touched_tick = match prev_touched_ticks_op {
+                Some(val) => *val,
+                None => {
+                    self.prev_touched_ticks.insert(car_info.id, 0);
+                    0
+                }
+            };
+
+            let stats = Self::STATS.with(|stats| {
+                let guard = stats.read().unwrap();
+                guard.iter().find(|(id, _)| *id == car_info.id).unwrap().1
+            });
+
+            // to get the last time the ball was touched by this player, otherwise tick = 0
+            let last_touch_tick = if car.ball_hit_info.is_valid {
+                if prev_touched_tick != car.ball_hit_info.tick_count_when_hit {
+                    self.prev_touched_ticks.insert(car_info.id, car.ball_hit_info.tick_count_when_hit).unwrap()
+                } else {
+                    prev_touched_tick
+                }
+            } else {
+                0
+            };
+
+            let player = PlayerData {
+                car_id: car_info.id as i32,
+                team_num: if car_info.team == Team::BLUE { BLUE_TEAM } else { ORANGE_TEAM },
+                match_goals: (orange_score + blue_score) as i64,
+                // TODO: adapt PlayerData struct to structs that represent better RocketSim data
+                match_saves: stats.saves as i64,
+                match_shots: stats.shots as i64,
+                match_demolishes: stats.demolitions as i64,
+                boost_pickups: 0,
+                is_demoed: car.is_demoed,
+                on_ground: car.is_on_ground,
+                // ball_touched: if self.prev_touched_ticks != car.ball_hit_info.tick_count_when_hit && !car.ball_hit_info.is_valid { self.prev_touched_ticks = car.ball_hit_info.tick_count_when_hit; true } else { false },
+                ball_touched: if car.ball_hit_info.is_valid {
+                    prev_touched_tick != car.ball_hit_info.tick_count_when_hit
+                } else {
+                    false
+                },
+                ball_info: car.ball_hit_info,
+                has_jump: !car.has_jumped,
+                has_flip: car.air_time_since_jump < self.jump_timer && !(car.has_flipped || car.has_double_jumped),
+                boost_amount: (car.boost / 100.),
+                car_data,
+                inverted_car_data,
+                last_ball_touch_tick: last_touch_tick,
+            };
+            players.push(player);
+        }
+        players.sort_unstable_by_key(|p| p.car_id);
+
+        // TODO: make this just the actual boost pad stats instead of is_active
+        let mut pad_vec = [0.; 34];
+        for (pad, vec_item) in sim_gamestate.pads.iter().zip(&mut pad_vec) {
+            if pad.state.is_active {
+                *vec_item = 1.;
+            }
+        }
+        let mut pad_reversed = pad_vec;
+        pad_reversed.reverse();
+        GameState_rlgym {
+            game_type: 0,
+            blue_score,
+            orange_score,
+            last_touch: 0,
+            players,
+            ball,
+            inverted_ball,
+            boost_pads: pad_vec,
+            inverted_boost_pads: pad_reversed,
+            tick_num: curr_tick,
+        }
+    }
+
+    pub fn get_rlgym_gamestate(&mut self) -> GameState_rlgym {
+        let rlsim_gamestate = self.arena.pin_mut().get_game_state();
+        self.decode_gamestate(rlsim_gamestate)
+    }
+
+    /// clone actions before this to set prev_acts
+    pub fn step(&mut self, actions: Vec<Vec<f32>>) -> GameState_rlgym {
+        let mut acts = Vec::<(u32, CarControls)>::new();
+
+        // package spectator ids with the corresponding action to send to arena
+        for (spectator_id, action) in self.car_ids.iter().zip(actions) {
+            acts.push((
+                *spectator_id,
+                CarControls {
+                    throttle: action[0],
+                    steer: action[1],
+                    pitch: action[2],
+                    yaw: action[3],
+                    roll: action[4],
+                    jump: action[5] > 0.,
+                    boost: action[6] > 0.,
+                    handbrake: action[7] > 0.,
+                },
+            ));
+        }
+
+        self.arena.pin_mut().set_all_controls(&acts).unwrap();
+
+        self.arena.pin_mut().step(1);
+
+        let gamestate = self.get_rlgym_gamestate();
+
+        // originally was here
+        // self.arena.pin_mut().step(self.tick_skip as i32);
+
+        // TODO: need to somehow extract ball hit information from every step probably
+        if self.tick_skip > 1 {
+            self.arena.pin_mut().step(self.tick_skip as i32 - 1);
+        }
+
+        gamestate
+    }
+}

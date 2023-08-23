@@ -1,0 +1,101 @@
+/target
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+.venv/
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+include/
+man/
+venv/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+.DS_Store
+
+# Sphinx documentation
+docs/_build/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Pyenv
+.python-version
+
+# meshes
+collision_meshes/
+collision_meshes/soccar/mesh_0.cmf
+collision_meshes/soccar/mesh_1.cmf
+collision_meshes/soccar/mesh_2.cmf
+collision_meshes/soccar/mesh_3.cmf
+collision_meshes/soccar/mesh_4.cmf
+collision_meshes/soccar/mesh_5.cmf
+collision_meshes/soccar/mesh_6.cmf
+collision_meshes/soccar/mesh_7.cmf
+collision_meshes/soccar/mesh_8.cmf
+collision_meshes/soccar/mesh_9.cmf
+collision_meshes/soccar/mesh_10.cmf
+collision_meshes/soccar/mesh_11.cmf
+collision_meshes/soccar/mesh_12.cmf
+collision_meshes/soccar/mesh_13.cmf
+collision_meshes/soccar/mesh_14.cmf
+collision_meshes/soccar/mesh_15.cmf
+rocketsim_examples/stat_tracker.rs
+
+.src/reward_functions/custom_rewards.rs
+*.txt
+
+# format stuff
+rustfmt.toml
+
+# maturin old stuff
+pyproject.toml_old
