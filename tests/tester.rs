@@ -103,19 +103,19 @@ fn main() {
     // let actions2 = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.], vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     rocketsim_rs::init(None);
     let tick_skip = 1;
-    let mut gym = make::make(
-        Some(100000.),
-        Some(tick_skip),
-        Some(false),
-        Some(1),
-        None,
-        None,
-        term_cond,
+    let game_config = make::MakeConfig {
+        tick_skip: Some(tick_skip),
+        spawn_opponents: Some(false),
+        team_size: Some(1),
+        gravity: None,
+        boost_consumption: None,
+        terminal_condition: term_cond,
         reward_fn,
-        obs_build_vec,
-        act_parse,
-        state_set,
-    );
+        obs_builder: obs_build_vec,
+        action_parser: act_parse,
+        state_setter: state_set, 
+    };
+    let mut gym = make::make(game_config);
 
     // let obs = gym.reset(None, None);
     // let last_state = gym._prev_state.clone();
@@ -483,19 +483,19 @@ fn main() {
     let actions2 = vec![vec![1., 0., 0., 0., 0., 0., 1., 0.], vec![1., 0., 0., 0., 0., 0., 1., 0.]];
     // rocketsim_rs::init(None);
     let tick_skip = 1;
-    let mut gym = make::make(
-        Some(100000.),
-        Some(tick_skip),
-        Some(true),
-        Some(1),
-        None,
-        None,
-        term_cond,
+    let game_config = make::MakeConfig {
+        tick_skip: Some(tick_skip),
+        spawn_opponents: Some(false),
+        team_size: Some(1),
+        gravity: None,
+        boost_consumption: None,
+        terminal_condition: term_cond,
         reward_fn,
-        obs_build_vec,
-        act_parse,
-        state_set,
-    );
+        obs_builder: obs_build_vec,
+        action_parser: act_parse,
+        state_setter: state_set, 
+    };
+    let mut gym = make::make(game_config);
 
     gym._game_match._state_setter = Box::new(DemoStateTester::new());
     gym.reset(None, None);
