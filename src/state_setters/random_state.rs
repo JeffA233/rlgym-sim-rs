@@ -63,7 +63,7 @@ impl RandomState {
     fn _reset_cars_random(&mut self, state_wrapper: &mut StateWrapper, on_ground: bool, random_speed: bool) {
         // let mut rng  = rand::thread_rng();
         // let cars = &mut state_wrapper.cars;
-        for mut car in &mut state_wrapper.cars {
+        for car in &mut state_wrapper.cars {
             car.set_pos(
                 Some(self.rng.gen::<f32>() * X_MAX - X_MAX / 2.),
                 Some(self.rng.gen::<f32>() * Y_MAX - Y_MAX / 2.),

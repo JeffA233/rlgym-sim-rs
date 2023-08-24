@@ -224,7 +224,7 @@ impl RocketsimWrapper {
         // }
 
         // new version
-        for mut pad in sim_state.pads.iter_mut() {
+        for pad in sim_state.pads.iter_mut() {
             pad.state = EBoostPadState { is_active: true,..Default::default() }
             // pad.state.cooldown = 0.;
         };
@@ -262,7 +262,7 @@ impl RocketsimWrapper {
         // }
 
         // new version
-        for (mut car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
+        for (car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
             car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
             car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
             car_info.state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
