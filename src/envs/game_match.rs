@@ -103,6 +103,9 @@ impl GameMatch {
     }
 
     pub fn build_observations(&mut self, state: &GameState) -> Vec<Vec<f32>> {
+        let obs_build_len = self._obs_builder.len();
+        let player_len = state.players.len();
+        assert!(obs_build_len == player_len, "not enough observation builders (len: {obs_build_len}) were provided for the amount of players (len: {player_len})");
         // if state.last_touch == -1 {
         //     state.last_touch = self.last_touch.clone();
         // } else {
@@ -167,6 +170,9 @@ impl GameMatch {
 
     pub fn parse_actions(&mut self, actions: Vec<Vec<f32>>, state: &GameState) -> Vec<Vec<f32>> {
         let parsed_actions = self._action_parser.parse_actions(actions, state);
+        let acts_len = parsed_actions.len();
+        let players_len = state.players.len();
+        assert!(acts_len == players_len, "parsed actions was not the same length (len: {acts_len}) as player count (len: {players_len})");
         self._prev_actions = parsed_actions.to_vec();
         parsed_actions
     }

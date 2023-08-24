@@ -477,8 +477,12 @@ fn main() {
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
     // let term_cond = Box::new(TimeoutCondition::new(225));
     let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
-    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
-    let obs_build_vec = vec![obs_build];
+    // let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
+    // let obs_build_vec = vec![obs_build];
+    let mut obs_build_vec: Vec<Box<dyn ObsBuilder + Send>> = Vec::new();
+    for _ in 0..2 {
+        obs_build_vec.push(Box::new(AdvancedObs::new()));
+    }
     let act_parse = Box::new(TestAction::new());
     let state_set = Box::new(DefaultStateTester::new());
     // let actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
