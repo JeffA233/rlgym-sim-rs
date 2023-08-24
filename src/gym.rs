@@ -1,6 +1,7 @@
 use crate::gamestates::game_state::GameState;
 
-use crate::envs::game_match::GameMatch;
+use crate::envs::game_match::{GameMatch, GameConfig};
+use crate::obs_builders::obs_builder::ObsBuilder;
 
 // use subprocess::Popen;
 
@@ -75,6 +76,10 @@ impl Gym {
         let mut info = HashMap::<String, f32>::new();
         info.insert("result".to_string(), self._game_match.get_result(&state) as f32);
         (obs, reward, done, info)
+    }
+
+    pub fn update_config(&mut self, new_config: GameConfig, new_obs: Option<Vec<Box<dyn ObsBuilder + Send>>>) {
+        self._game_match.update_settings(new_config, new_obs);
     }
 
     // pub fn close(&mut self) {

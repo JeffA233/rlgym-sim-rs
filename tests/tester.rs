@@ -7,6 +7,7 @@ use std::{
 use rlgym_sim_rs::action_parsers::test_parser::TestAction;
 use rlgym_sim_rs::conditionals::common_conditions::{TimeoutCondition, GoalScoredCondition};
 use rlgym_sim_rs::conditionals::terminal_condition::TerminalCondition;
+use rlgym_sim_rs::envs::game_match::GameConfig;
 // use communication::communication_handler::f32vec_as_u8_slice;
 // use rlgym_sim_rs::envs::game_match::GameMatch;
 use rlgym_sim_rs::gamestates::game_state::GameState;
@@ -95,12 +96,20 @@ fn main() {
     // let actions2 = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.], vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     rocketsim_rs::init(None);
     let tick_skip = 1;
+    let config = GameConfig {
+        tick_skip,
+        spawn_opponents: false,
+        team_size: 1,
+        gravity: 1.,
+        boost_consumption: 1.,
+    };
     let game_config = make::MakeConfig {
-        tick_skip: Some(tick_skip),
-        spawn_opponents: Some(false),
-        team_size: Some(1),
-        gravity: None,
-        boost_consumption: None,
+        game_config: config,
+        // tick_skip: Some(tick_skip),
+        // spawn_opponents: Some(false),
+        // team_size: Some(1),
+        // gravity: None,
+        // boost_consumption: None,
         terminal_condition: term_cond,
         reward_fn,
         obs_builder: obs_build_vec,
@@ -343,7 +352,7 @@ fn main() {
         //     println!("val was greater than {val_limit}: {val}, at step {_i}")
         // }
         if _i % 200 == 0 {
-            let i_val = _i;
+            // let i_val = _i;
             state_vec.push(gym._prev_state.clone());
         }
         rew_val += val;
@@ -369,7 +378,7 @@ fn main() {
     let mut last_orange_score = 0;
     for _i in 0..(120 * 50) {
         let (_obs, reward, done, _info) = gym.step(actions.clone());
-        let mut state = gym._prev_state.clone();
+        let state = gym._prev_state.clone();
         if state.orange_score != last_orange_score {
             // if the done flag was not shown then we messed up
             assert!(done);
@@ -379,7 +388,7 @@ fn main() {
         }
         if done {
             gym.reset(None, None);
-            state = gym._prev_state.clone();
+            // state = gym._prev_state.clone();
         }
         // let info_val = *_info.get("result").unwrap();
         // if info_val > 0. {
@@ -391,7 +400,7 @@ fn main() {
         //     println!("val was greater than {val_limit}: {val}, at step {_i}")
         // }
         if _i % 200 == 0 {
-            let i_val = _i;
+            // let i_val = _i;
             state_vec.push(gym._prev_state.clone());
         }
         rew_val += val;
@@ -412,14 +421,14 @@ fn main() {
 
     let mut state_vec: Vec<GameState> = Vec::new();
     state_vec.push(gym._prev_state.clone());
-    let mut rew_val: f32 = 0.;
+    // let mut rew_val: f32 = 0.;
     let start_time = Instant::now();
     let mut last_orange_score = 0;
     let mut touch_counter = 0;
-    let mut prev_distance;
+    // let mut prev_distance;
     for _i in 0..(120 * 50) {
         let (_obs, reward, done, _info) = gym.step(actions.clone());
-        let mut state = gym._prev_state.clone();
+        let state = gym._prev_state.clone();
         if state.orange_score != last_orange_score {
             // if the done flag was not shown then we messed up
             // assert_eq!(done, true);
@@ -429,16 +438,16 @@ fn main() {
         }
         if state.players[0].ball_touched {
             touch_counter += 1;
-            prev_distance = (state.players[0].car_data.position - state.ball.position)
-                .into_array()
-                .iter()
-                .map(|val| val.powi(2))
-                .sum::<f32>()
-                .sqrt();
+            // prev_distance = (state.players[0].car_data.position - state.ball.position)
+            //     .into_array()
+            //     .iter()
+            //     .map(|val| val.powi(2))
+            //     .sum::<f32>()
+            //     .sqrt();
         }
         if done {
             gym.reset(None, None);
-            state = gym._prev_state.clone();
+            // state = gym._prev_state.clone();
         }
         // let info_val = *_info.get("result").unwrap();
         // if info_val > 0. {
@@ -450,7 +459,7 @@ fn main() {
         //     println!("val was greater than {val_limit}: {val}, at step {_i}")
         // }
         if _i % 200 == 0 {
-            let i_val = _i;
+            // let i_val = _i;
             state_vec.push(gym._prev_state.clone());
         }
         rew_val += val;
@@ -476,12 +485,15 @@ fn main() {
     let actions2 = vec![vec![1., 0., 0., 0., 0., 0., 1., 0.], vec![1., 0., 0., 0., 0., 0., 1., 0.]];
     // rocketsim_rs::init(None);
     let tick_skip = 1;
+    let config = GameConfig {
+        tick_skip,
+        spawn_opponents: true,
+        team_size: 1,
+        gravity: 1.,
+        boost_consumption: 1.,
+    };
     let game_config = make::MakeConfig {
-        tick_skip: Some(tick_skip),
-        spawn_opponents: Some(true),
-        team_size: Some(1),
-        gravity: None,
-        boost_consumption: None,
+        game_config: config,
         terminal_condition: term_cond,
         reward_fn,
         obs_builder: obs_build_vec,
@@ -512,7 +524,7 @@ fn main() {
             demos += 1;
         } else {
             // just for being able to debug here
-            let x = 0;
+            // let x = 0;
         }
         // let info_val = *_info.get("result").unwrap();
         // if info_val > 0. {
@@ -524,7 +536,7 @@ fn main() {
         //     println!("val was greater than {val_limit}: {val}, at step {_i}")
         // }
         if _i % 200 == 0 {
-            let i_val = _i;
+            // let i_val = _i;
             state_vec.push(gym._prev_state.clone());
         }
         rew_val += val;

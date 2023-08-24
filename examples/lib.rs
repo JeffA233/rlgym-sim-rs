@@ -100,12 +100,15 @@ impl GymWrapper {
         let act_parse = Box::new(NectoAction::new());
         let state_set = Box::new(custom_state_setters(team_size, seed));
         let spawn_opponents = self_play.unwrap_or(true);
+        let config = GameConfig {
+            tick_skip,
+            spawn_opponents,
+            team_size,
+            gravity,
+            boost_consumption,
+        };
         let game_config = make::MakeConfig {
-            tick_skip: Some(tick_skip),
-            spawn_opponents: Some(spawn_opponents),
-            team_size: Some(team_size),
-            gravity: Some(gravity),
-            boost_consumption: Some(boost),
+            game_config: config,
             terminal_condition: term_cond,
             reward_fn,
             obs_builder: obs_build_vec,
@@ -177,12 +180,15 @@ impl GymWrapperRust {
         // let obs_build = Box::new(AdvancedObsPadderStacker::new(None, Some(5)));
         let act_parse = Box::new(NectoAction::new());
         let state_set = Box::new(custom_state_setters(team_size, None));
+        let config = GameConfig {
+            tick_skip,
+            spawn_opponents,
+            team_size,
+            gravity,
+            boost_consumption,
+        };
         let game_config = make::MakeConfig {
-            tick_skip: Some(tick_skip),
-            spawn_opponents: Some(spawn_opponents),
-            team_size: Some(team_size),
-            gravity: Some(gravity),
-            boost_consumption: Some(boost),
+            game_config: config,
             terminal_condition: term_cond,
             reward_fn,
             obs_builder: obs_build_vec,

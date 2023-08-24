@@ -14,7 +14,7 @@ use crate::{
         physics_object::{PhysicsObject, Position, Quaternion, Velocity},
         player_data::PlayerData,
     },
-    state_setters::wrappers::state_wrapper::StateWrapper,
+    state_setters::wrappers::state_wrapper::StateWrapper, envs::game_match::GameConfig,
 };
 
 /// used as a means to store stats for a particular agent
@@ -47,7 +47,7 @@ impl RocketsimWrapper {
         static STATS: RwLock<Vec<(u32, Stats)>> = RwLock::new(Vec::new());
     );
 
-    pub fn new(spawn_opponents: bool, team_size: usize, tick_skip: usize, gravity: f32, boost_consumption: f32) -> Self {
+    pub fn new(config: GameConfig) -> Self {
         // TODO: input more game config stuff here
         // rocketsim start
         // required only once for all threads so we should do it before the multithreading parts instead of here
@@ -55,24 +55,24 @@ impl RocketsimWrapper {
         let mut rocket_sim_instance = Arena::default_standard();
 
         let mut sim_mutator_config = rocket_sim_instance.get_mutator_config();
-        sim_mutator_config.gravity.z = GRAVITY_Z * gravity;
-        sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * boost_consumption;
+        sim_mutator_config.gravity.z = GRAVITY_Z * config.gravity;
+        sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * config.boost_consumption;
         rocket_sim_instance.pin_mut().set_mutator_config(sim_mutator_config);
 
         rocket_sim_instance.pin_mut().reset_to_random_kickoff(None);
         let mut car_ids = Vec::new();
-        if spawn_opponents {
+        if config.spawn_opponents {
             // spawn blue cars
-            for _ in 0..team_size {
+            for _ in 0..config.team_size {
                 car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
             }
             // spawn orange cars
-            for _ in 0..team_size {
+            for _ in 0..config.team_size {
                 car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
             }
         } else {
             // spawn blue cars
-            for _ in 0..team_size {
+            for _ in 0..config.team_size {
                 car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
             }
         }
@@ -187,7 +187,7 @@ impl RocketsimWrapper {
                 });
                 // -- end of stats section --
             },
-            tick_skip,
+            config.tick_skip,
         );
 
         rocket_sim_instance.pin_mut().set_car_bump_callback(
@@ -208,7 +208,7 @@ impl RocketsimWrapper {
         RocketsimWrapper {
             arena: rocket_sim_instance,
             car_ids,
-            tick_skip,
+            tick_skip: config.tick_skip,
             jump_timer: 1.25,
             prev_touched_ticks: HashMap::new(),
         }
@@ -493,6 +493,53 @@ impl RocketsimWrapper {
             inverted_boost_pads: pad_reversed,
             tick_num: curr_tick,
         }
+    }
+
+    pub fn set_game_config(&mut self, new_config: GameConfig) {
+        let mut sim_mutator_config = self.arena.get_mutator_config();
+        sim_mutator_config.gravity.z = GRAVITY_Z * new_config.gravity;
+        sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * new_config.boost_consumption;
+        self.arena.pin_mut().set_mutator_config(sim_mutator_config);
+
+        let car_ids = self.arena.get_cars();
+        for car_id in car_ids {
+            let err = self.arena.pin_mut().remove_car(car_id);
+            match err {
+                Ok(val) => val,
+                Err(err) => println!("unable to remove car: {err}")
+            };
+        }
+
+        let mut car_ids = Vec::new();
+        if new_config.spawn_opponents {
+            // spawn blue cars
+            for _ in 0..new_config.team_size {
+                car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            }
+            // spawn orange cars
+            for _ in 0..new_config.team_size {
+                car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+            }
+        } else {
+            // spawn blue cars
+            for _ in 0..new_config.team_size {
+                car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            }
+        }
+
+        self.arena.pin_mut().reset_to_random_kickoff(None);
+
+        // init stats
+        Self::STATS.with(|stats| {
+            let mut guard = stats.write().unwrap();
+            for id in car_ids.iter() {
+                guard.push((*id, Stats::default()));
+            }
+        });
+
+        self.car_ids = car_ids;
+        self.tick_skip = new_config.tick_skip;
+
     }
 
     pub fn get_rlgym_gamestate(&mut self) -> GameState_rlgym {

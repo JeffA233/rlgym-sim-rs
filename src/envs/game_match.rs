@@ -4,7 +4,7 @@ use crate::{
     obs_builders::obs_builder::ObsBuilder,
     reward_functions::default_reward::RewardFn,
     sim_wrapper::wrapper::RocketsimWrapper,
-    state_setters::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper},
+    state_setters::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper}, make::MakeConfig,
 };
 
 use crate::gamestates::game_state::GameState;
@@ -27,6 +27,9 @@ pub struct GameMatch {
     pub sim_wrapper: RocketsimWrapper,
 }
 
+/// Config struct that takes mutators, team size, tick skip, and spawn opponents. 
+/// 
+/// 1.0 is normal gravity and boost consumption, it is later multiplied by the default value so 2.0 would be 2x normal and etc.
 #[derive(Clone, Copy, Default)]
 pub struct GameConfig {
     pub gravity: f32,
@@ -48,40 +51,35 @@ pub struct Stats {
 
 impl GameMatch {
     pub fn new(
-        reward_function: Box<dyn RewardFn + Send>,
-        terminal_condition: Box<dyn TerminalCondition + Send>,
-        obs_builder: Vec<Box<dyn ObsBuilder + Send>>,
-        action_parser: Box<dyn ActionParser + Send>,
-        state_setter: Box<dyn StateSetter + Send>,
-        team_size: Option<usize>,
-        tick_skip: Option<usize>,
-        gravity: Option<f32>,
-        boost_consumption: Option<f32>,
-        spawn_opponents: Option<bool>,
+        config: MakeConfig,
+        // reward_function: Box<dyn RewardFn + Send>,
+        // terminal_condition: Box<dyn TerminalCondition + Send>,
+        // obs_builder: Vec<Box<dyn ObsBuilder + Send>>,
+        // action_parser: Box<dyn ActionParser + Send>,
+        // state_setter: Box<dyn StateSetter + Send>,
+        // team_size: Option<usize>,
+        // tick_skip: Option<usize>,
+        // gravity: Option<f32>,
+        // boost_consumption: Option<f32>,
+        // spawn_opponents: Option<bool>,
     ) -> Self {
-        let team_size = team_size.unwrap_or(1);
-        let tick_skip = tick_skip.unwrap_or(8);
-        let gravity = gravity.unwrap_or(1.);
-        let boost_consumption = boost_consumption.unwrap_or(1.);
-        let spawn_opponents = spawn_opponents.unwrap_or(true);
-        let num_agents = if spawn_opponents { team_size * 2 } else { team_size };
+        // let team_size = config.game_config.team_size.unwrap_or(1);
+        // let tick_skip = tick_skip.unwrap_or(8);
+        // let gravity = gravity.unwrap_or(1.);
+        // let boost_consumption = boost_consumption.unwrap_or(1.);
+        // let spawn_opponents = spawn_opponents.unwrap_or(true);
+        let num_agents = if config.game_config.spawn_opponents { config.game_config.team_size * 2 } else { config.game_config.team_size };
 
         // rocketsim start
-        let sim_wrapper = RocketsimWrapper::new(spawn_opponents, team_size, tick_skip, gravity, boost_consumption);
+        let sim_wrapper = RocketsimWrapper::new(config.game_config);
 
         GameMatch {
-            game_config: GameConfig {
-                gravity,
-                boost_consumption,
-                team_size,
-                tick_skip,
-                spawn_opponents,
-            },
-            _reward_fn: reward_function,
-            _terminal_condition: terminal_condition,
-            _obs_builder: obs_builder,
-            _action_parser: action_parser,
-            _state_setter: state_setter,
+            game_config: config.game_config,
+            _reward_fn: config.reward_fn,
+            _terminal_condition: config.terminal_condition,
+            _obs_builder: config.obs_builder,
+            _action_parser: config.action_parser,
+            _state_setter: config.state_setter,
             agents: num_agents,
             observation_space: Vec::<usize>::new(),
             action_space: Vec::<usize>::new(),
@@ -122,8 +120,8 @@ impl GameMatch {
         self._obs_builder
             .iter_mut()
             .zip(&state.players)
-            .enumerate()
-            .map(|(i, (func, player))| func.build_obs(player, state, &self.game_config, &self._prev_actions[i]))
+            .zip(&self._prev_actions)
+            .map(|((func, player), prev_acts)| func.build_obs(player, state, &self.game_config, prev_acts))
             .collect()
 
         // if observations.len() == 1 {
@@ -138,11 +136,11 @@ impl GameMatch {
 
         self._reward_fn.pre_step(state);
 
-        for (i, player) in state.players.iter().enumerate() {
+        for (player, prev_act) in state.players.iter().zip(&self._prev_actions) {
             if done {
-                rewards.push(self._reward_fn.get_final_reward(player, state, &self._prev_actions[i]));
+                rewards.push(self._reward_fn.get_final_reward(player, state, prev_act));
             } else {
-                rewards.push(self._reward_fn.get_reward(player, state, &self._prev_actions[i]));
+                rewards.push(self._reward_fn.get_reward(player, state, prev_act));
             }
         }
 
@@ -207,10 +205,12 @@ impl GameMatch {
         ]
     }
 
-    pub fn update_settings(&mut self, gravity: Option<f32>, boost_consumption: Option<f32>) {
+    pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder + Send>>>) {
         // TODO: wait for mutators to get done
-        if let Some(gravity) = gravity { self.game_config.gravity = gravity }
-        if let Some(boost_consumption) = boost_consumption { self.game_config.boost_consumption = boost_consumption }
+        self.game_config = new_config;
+        // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);
+        if let Some(val) = new_obs_builder { self._obs_builder = val }
+        self.sim_wrapper.set_game_config(new_config);
     }
 
     fn _auto_detech_obs_space(&mut self) {
