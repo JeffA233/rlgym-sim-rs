@@ -20,7 +20,7 @@ use rlgym_sim_rs::state_setters::default_state::{
     BlueGoalStateTester, 
     OrangeGoalStateTester, 
     // ExactStateTester, 
-    DemoStateTester
+    DemoStateTester,
 };
 
 use rlgym_sim_rs::{

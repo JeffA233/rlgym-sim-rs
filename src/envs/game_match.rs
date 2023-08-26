@@ -27,16 +27,41 @@ pub struct GameMatch {
     pub sim_wrapper: RocketsimWrapper,
 }
 
-/// Config struct that takes mutators, team size, tick skip, and spawn opponents. 
+/// Config struct that takes mutators, team size, tick skip, and spawn opponents.
+/// Should be used in the `make` function.
 /// 
-/// 1.0 is normal gravity and boost consumption, it is later multiplied by the default value so 2.0 would be 2x normal and etc.
-#[derive(Clone, Copy, Default)]
+/// # Default
+/// ```rust
+/// fn default() -> Self {
+///     Self {
+///         gravity: 1., 
+///         boost_consumption: 1., 
+///         team_size: 1, 
+///         tick_skip: 8, 
+///         spawn_opponents: true, 
+///     }
+/// }
+/// ```
+/// 
+#[derive(Clone, Copy, Debug)]
 pub struct GameConfig {
     pub gravity: f32,
     pub boost_consumption: f32,
     pub team_size: usize,
     pub tick_skip: usize,
     pub spawn_opponents: bool,
+}
+
+impl Default for GameConfig {
+    fn default() -> Self {
+        Self {
+            gravity: 1., 
+            boost_consumption: 1., 
+            team_size: 1, 
+            tick_skip: 8, 
+            spawn_opponents: true, 
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default)]

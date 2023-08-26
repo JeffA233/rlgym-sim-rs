@@ -8,6 +8,41 @@ use crate::{
     state_setters::state_setter::StateSetter,
 };
 
+/// General configuration struct for the gym which is inputted through the `make` function.
+/// 
+/// # Example
+/// 
+/// ```
+/// use rlgym_sim_rs::{
+///     obs_builders::advanced_obs::AdvancedObs,
+///     action_parsers::test_parser::TestAction,
+///     conditionals::common_conditions::GoalScoredCondition,
+///     envs::game_match::GameConfig,
+///     reward_functions::common_rewards::misc_rewards::EventReward,
+///     state_setters::default_state::DefaultState,
+/// }
+/// 
+/// rocketsim_rs::init(None);
+/// 
+/// let config = GameConfig {
+///     tick_skip: 1,
+///     spawn_opponents: false,
+///     team_size: 1,
+///     gravity: 1.,
+///     boost_consumption: 1.,
+/// };
+/// 
+/// let game_config = make::MakeConfig {
+///     game_config: config,
+///     terminal_condition: Box::new(GoalScoredCondition::new()),
+///     reward_fn: Box::new(EventReward::new(None, None, None, None, None, None, None, None)),
+///     obs_builder: vec![Box::new(AdvancedObs::new())],
+///     action_parser: Box::new(TestAction::new()),
+///     state_setter: Box::new(DefaultState::new()), 
+/// };
+/// 
+/// let mut gym = make::make(game_config);
+/// ```
 pub struct MakeConfig {
     pub game_config: GameConfig,
     pub terminal_condition: Box<dyn TerminalCondition + Send>,
@@ -17,7 +52,7 @@ pub struct MakeConfig {
     pub state_setter: Box<dyn StateSetter + Send>, 
 }
 
-/// General generator function for the gym
+/// General generator function for the gym.
 pub fn make(mut config: MakeConfig) -> Gym {
     // let game_speed = game_config.game_speed.unwrap_or(100.);
     let tick_skip = config.game_config.tick_skip;
