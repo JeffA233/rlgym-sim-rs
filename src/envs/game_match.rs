@@ -31,7 +31,7 @@ pub struct GameMatch {
 /// Should be used in the `make` function.
 /// 
 /// # Default
-/// ```rust
+/// ```rust,ignore
 /// fn default() -> Self {
 ///     Self {
 ///         gravity: 1., 

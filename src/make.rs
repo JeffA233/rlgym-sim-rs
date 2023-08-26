@@ -20,7 +20,8 @@ use crate::{
 ///     envs::game_match::GameConfig,
 ///     reward_functions::common_rewards::misc_rewards::EventReward,
 ///     state_setters::default_state::DefaultState,
-/// }
+///     make,
+/// };
 /// 
 /// rocketsim_rs::init(None);
 /// 
@@ -38,7 +39,7 @@ use crate::{
 ///     reward_fn: Box::new(EventReward::new(None, None, None, None, None, None, None, None)),
 ///     obs_builder: vec![Box::new(AdvancedObs::new())],
 ///     action_parser: Box::new(TestAction::new()),
-///     state_setter: Box::new(DefaultState::new()), 
+///     state_setter: Box::new(DefaultState::new(None)), 
 /// };
 /// 
 /// let mut gym = make::make(game_config);
