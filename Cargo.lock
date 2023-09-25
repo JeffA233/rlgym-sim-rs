@@ -468,16 +468,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs2"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -615,15 +605,6 @@ name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
 dependencies = [
  "either",
 ]
@@ -1007,8 +988,6 @@ checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 name = "rlgym_sim_rs"
 version = "0.1.0"
 dependencies = [
- "fs2",
- "itertools 0.11.0",
  "ndarray",
  "rand",
  "rocketsim_rs",
@@ -1017,9 +996,9 @@ dependencies = [
 
 [[package]]
 name = "rocketsim_rs"
-version = "0.17.1"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0fb2c7324f66c079cf02a8a40b5c434bdb0c3fbb1b6e820f4bd2a208ff17496"
+checksum = "5358a2649a462bda99c10a416997a8978ebcea71a63057d8c83beaa6c0b7674c"
 dependencies = [
  "autocxx",
  "autocxx-build",

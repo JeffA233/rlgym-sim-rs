@@ -17,11 +17,11 @@ ndarray = { version = "0.15.6"}
 # numpy = { version = "0.19.0"}
 rand = { version = "0.8.5"}
 # serde_json = { version = "1.0.104"}
-fs2 = { version = "0.4.3"}
+# fs2 = { version = "0.4.3"}
 zip = { version = "0.6.4"}
 # crossbeam-channel = { version = "0.5.8"}
-itertools = { version = "0.11.0"}
-rocketsim_rs = {version = "0.17.1"}
+# itertools = { version = "0.11.0"}
+rocketsim_rs = {version = "0.18.0"}
 # rustc-hash = {version = "1.1.0"}
 
 # [build]
