@@ -145,11 +145,18 @@ impl GameMatch {
         // for (i, player) in state.players.iter().enumerate() {
         //     observations.push(self._obs_builder.build_obs(player, &state, &self._prev_actions[i]));
         // }
-        self._obs_builder
-            .iter_mut()
-            .zip(&state.players)
-            .zip(&self._prev_actions)
-            .map(|((func, player), prev_acts)| func.build_obs(player, state, &self.game_config, prev_acts))
+        // self._obs_builder
+        //     .iter_mut()
+        //     .zip(&state.players)
+        //     .zip(&self._prev_actions)
+        //     .map(|((func, player), prev_acts)| func.build_obs(player, state, &self.game_config, prev_acts))
+        //     .collect()
+
+        state.players
+            .iter()
+            .zip(&mut self._obs_builder)
+            .enumerate()
+            .map(|(i, (player, func))| func.build_obs(player, state, &self.game_config, &self._prev_actions[i]))
             .collect()
 
         // if observations.len() == 1 {

@@ -51,7 +51,7 @@ impl Default for DefaultState {
 
 impl StateSetter for DefaultState {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let mut spawn_inds = vec![0, 1, 2, 3, 4];
+        let mut spawn_inds = [0, 1, 2, 3, 4];
         // let mut rng = rand::thread_rng();
 
         // this is to try to rearrange the order in a randomized way
@@ -168,7 +168,7 @@ impl Default for DefaultStateTester {
 
 impl StateSetter for DefaultStateTester {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let spawn_inds = vec![0, 1, 2, 3, 4];
+        let spawn_inds = [0, 1, 2, 3, 4];
         // let mut rng = rand::thread_rng();
         // spawn_inds.sort_by_key(|x| rng.gen::<usize>());
 
@@ -238,7 +238,7 @@ impl Default for BlueGoalStateTester {
 
 impl StateSetter for BlueGoalStateTester {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let spawn_inds = vec![0, 1, 2, 3, 4];
+        let spawn_inds = [0, 1, 2, 3, 4];
         // let mut rng = rand::thread_rng();
         // spawn_inds.sort_by_key(|x| rng.gen::<usize>());
 
@@ -308,7 +308,7 @@ impl Default for OrangeGoalStateTester {
 
 impl StateSetter for OrangeGoalStateTester {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let spawn_inds = vec![0, 1, 2, 3, 4];
+        let spawn_inds = [0, 1, 2, 3, 4];
         // let mut rng = rand::thread_rng();
         // spawn_inds.sort_by_key(|x| rng.gen::<usize>());
 
@@ -378,7 +378,7 @@ impl Default for AgentBallHitStateTester {
 
 impl StateSetter for AgentBallHitStateTester {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let spawn_inds = vec![0, 1, 2, 3, 4];
+        let spawn_inds = [0, 1, 2, 3, 4];
         // let mut rng = rand::thread_rng();
         // spawn_inds.sort_by_key(|x| rng.gen::<usize>());
 
