@@ -31,6 +31,23 @@ const PLAYER_CAR_STATE_LENGTH: usize = 13;
 const PLAYER_TERTIARY_INFO_LENGTH: usize = 11;
 const PLAYER_INFO_LENGTH: usize = 2 + 2 * PLAYER_CAR_STATE_LENGTH + PLAYER_TERTIARY_INFO_LENGTH;
 
+impl Default for GameState {
+    fn default() -> Self {
+        GameState {
+            game_type: 0,
+            blue_score: 0,
+            orange_score: 0,
+            last_touch: 0,
+            players: Vec::new(),
+            ball: PhysicsObject::default(),
+            inverted_ball: PhysicsObject::default(),
+            boost_pads: [0.; 34],
+            inverted_boost_pads: [0.; 34],
+            tick_num: 0,
+        }
+    }
+}
+
 impl GameState {
     pub fn new(state_floats: Option<Vec<f32>>) -> Self {
         match state_floats {
