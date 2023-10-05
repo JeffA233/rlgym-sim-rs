@@ -45,18 +45,18 @@ impl AdvancedObs {
         let mut rel_vel = ball.linear_velocity - player_car.linear_velocity;
         rel_vel = rel_vel.divide_by_var(self.pos_std);
 
-        obs.extend(rel_pos.into_array().iter());
-        obs.extend(rel_vel.into_array().iter());
-        obs.extend(player_car.position.divide_by_var(self.pos_std).into_array().iter());
-        obs.extend(player_car.forward().iter());
-        obs.extend(player_car.up().iter());
-        obs.extend(player_car.linear_velocity.divide_by_var(self.pos_std).into_array().iter());
-        obs.extend(player_car.angular_velocity.divide_by_var(self.ang_std).into_array().iter());
+        obs.extend(rel_pos);
+        obs.extend(rel_vel);
+        obs.extend(player_car.position.divide_by_var(self.pos_std));
+        obs.extend(player_car.forward());
+        obs.extend(player_car.up());
+        obs.extend(player_car.linear_velocity.divide_by_var(self.pos_std));
+        obs.extend(player_car.angular_velocity.divide_by_var(self.ang_std));
         obs.extend(vec![car.boost_amount, car.on_ground as i32 as f32, car.has_flip as i32 as f32, car.is_demoed as i32 as f32]);
 
         if let Some(player) = player {
-            obs.extend((player_car.position - player.position).divide_by_var(self.pos_std).into_array().iter());
-            obs.extend((player_car.linear_velocity - player.linear_velocity).divide_by_var(self.pos_std).into_array().iter());
+            obs.extend((player_car.position - player.position).divide_by_var(self.pos_std));
+            obs.extend((player_car.linear_velocity - player.linear_velocity).divide_by_var(self.pos_std));
         }
 
         player_car
@@ -97,11 +97,11 @@ impl ObsBuilder for AdvancedObs {
 
         let mut obs = Vec::<f32>::with_capacity(276);
 
-        obs.extend(pos_std.into_array().iter());
-        obs.extend(lin_std.into_array().iter());
-        obs.extend(ang_std.into_array().iter());
-        obs.extend(previous_action.iter());
-        obs.extend(pads.iter());
+        obs.extend(pos_std);
+        obs.extend(lin_std);
+        obs.extend(ang_std);
+        obs.extend(previous_action);
+        obs.extend(pads);
 
         // self.add_ball_to_stack(pos_std, lin_std, ang_std, player.car_id as usize);
 

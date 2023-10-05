@@ -98,6 +98,40 @@ impl ops::Div<Position> for Position {
     }
 }
 
+pub struct IterCounterPos {
+    count: usize,
+    position: Position,
+}
+
+impl IterCounterPos {
+    fn new(pos: Position) -> Self {
+        IterCounterPos { count: 0, position: pos }
+    }
+}
+
+impl Iterator for IterCounterPos {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.count += 1;
+        match self.count {
+            1 => Some(self.position.x),
+            2 => Some(self.position.y),
+            3 => Some(self.position.z),
+            _ => None
+        }
+    }
+}
+
+impl IntoIterator for Position {
+    type Item = f32;
+    type IntoIter = IterCounterPos;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter::new(self)
+    }
+}
+
 #[derive(Clone, Copy, Default)]
 pub struct Velocity {
     pub x: f32,
@@ -196,6 +230,40 @@ impl ops::Div<Velocity> for Velocity {
             y: self.y / rhs.y,
             z: self.z / rhs.z,
         }
+    }
+}
+
+pub struct IterCounterVel {
+    count: usize,
+    velocity: Velocity,
+}
+
+impl IterCounterVel {
+    fn new(vel: Velocity) -> Self {
+        IterCounterVel { count: 0, velocity: vel }
+    }
+}
+
+impl Iterator for IterCounterVel {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.count += 1;
+        match self.count {
+            1 => Some(self.velocity.x),
+            2 => Some(self.velocity.y),
+            3 => Some(self.velocity.z),
+            _ => None
+        }
+    }
+}
+
+impl IntoIterator for Velocity {
+    type Item = f32;
+    type IntoIter = IterCounterVel;
+    
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter::new(self)
     }
 }
 
