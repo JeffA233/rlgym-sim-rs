@@ -387,9 +387,12 @@ impl RocketsimWrapper {
             car_data.rotation_mtx.array[0] = [car.rot_mat.forward.x, car.rot_mat.right.x, car.rot_mat.up.x];
             car_data.rotation_mtx.array[1] = [car.rot_mat.forward.y, car.rot_mat.right.y, car.rot_mat.up.y];
             car_data.rotation_mtx.array[2] = [car.rot_mat.forward.z, car.rot_mat.right.z, car.rot_mat.up.z];
+            car_data.has_computed_rot_mtx = true;
 
             car_data.quaternion = car_data.rotation_mtx.rotation_to_quaternion();
-            car_data.has_computed_rot_mtx = true;
+            
+            car_data.euler_angles = car_data.quaternion.quat_to_euler();
+            car_data.has_computed_euler_angles = true;
 
             let mut inverted_car_data = PhysicsObject::new();
             inverted_car_data.position = Position {
@@ -415,7 +418,13 @@ impl RocketsimWrapper {
             };
             // no particular reason to do this I think other than to match that car_data also has a computed rot_mtx
             // previously the behavior was that each clone of the gamestate would have to recompute if not already computed
-            inverted_car_data.rotation_mtx();
+            inverted_car_data.rotation_mtx.array[0] = [car.rot_mat.forward.x, car.rot_mat.forward.y, car.rot_mat.forward.z];
+            inverted_car_data.rotation_mtx.array[1] = [car.rot_mat.right.x, car.rot_mat.right.y, car.rot_mat.right.z];
+            inverted_car_data.rotation_mtx.array[2] = [car.rot_mat.up.x, car.rot_mat.up.y, car.rot_mat.up.z];
+            inverted_car_data.has_computed_rot_mtx = true;
+
+            inverted_car_data.euler_angles = inverted_car_data.quaternion.quat_to_euler();
+            inverted_car_data.has_computed_euler_angles = true;
 
             // need to make sure there is a value since the hashmap may not be populated yet
             let prev_touched_ticks_op = self.prev_touched_ticks.get(&car_info.id);

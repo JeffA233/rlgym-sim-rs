@@ -552,20 +552,20 @@ impl PhysicsObject {
         self.angular_velocity.set_vals(Some(ball_data[6]), Some(ball_data[7]), Some(ball_data[8]));
     }
 
-    pub fn forward(&mut self) -> [f32; 3] {
+    pub fn forward(&self) -> [f32; 3] {
         // let arr = &self.rotation_mtx();
         // arr.column(0)
-        self.rotation_mtx().column(0)
+        self.rotation_mtx.column(0)
     }
 
-    pub fn right(&mut self) -> [f32; 3] {
+    pub fn right(&self) -> [f32; 3] {
         // let arr = self.rotation_mtx();
         // arr.column(1)
-        self.rotation_mtx().column(1)
+        self.rotation_mtx.column(1)
     }
 
-    pub fn left(&mut self) -> [f32; 3] {
-        let arr = self.rotation_mtx();
+    pub fn left(&self) -> [f32; 3] {
+        let arr = self.rotation_mtx;
         let mut partial_arr = arr.column(1);
         for val in partial_arr.iter_mut() {
             *val *= -1.;
@@ -573,37 +573,37 @@ impl PhysicsObject {
         partial_arr
     }
 
-    pub fn up(&mut self) -> [f32; 3] {
+    pub fn up(&self) -> [f32; 3] {
         // let arr = self.rotation_mtx();
         // arr.column(2)
-        self.rotation_mtx().column(2)
+        self.rotation_mtx.column(2)
     }
 
-    pub fn pitch(&mut self) -> f32 {
-        self.euler_angles().pitch
+    pub fn pitch(&self) -> f32 {
+        self.euler_angles.pitch
     }
 
-    pub fn yaw(&mut self) -> f32 {
-        self.euler_angles().yaw
+    pub fn yaw(&self) -> f32 {
+        self.euler_angles.yaw
     }
 
-    pub fn roll(&mut self) -> f32 {
-        self.euler_angles().roll
+    pub fn roll(&self) -> f32 {
+        self.euler_angles.roll
     }
 
-    pub fn euler_angles(&mut self) -> EulerAngle {
-        if !self.has_computed_euler_angles {
-            self.euler_angles = self.quaternion.quat_to_euler();
-            self.has_computed_euler_angles = true;
-        }
+    pub fn euler_angles(&self) -> EulerAngle {
+        // if !self.has_computed_euler_angles {
+        //     self.euler_angles = self.quaternion.quat_to_euler();
+        //     self.has_computed_euler_angles = true;
+        // }
         self.euler_angles
     }
 
-    pub fn rotation_mtx(&mut self) -> RotationMatrix {
-        if !self.has_computed_rot_mtx {
-            self.rotation_mtx = self.quaternion.quat_to_rot_mtx();
-            self.has_computed_rot_mtx = true;
-        }
+    pub fn rotation_mtx(&self) -> RotationMatrix {
+        // if !self.has_computed_rot_mtx {
+        //     self.rotation_mtx = self.quaternion.quat_to_rot_mtx();
+        //     self.has_computed_rot_mtx = true;
+        // }
         self.rotation_mtx
     }
 
