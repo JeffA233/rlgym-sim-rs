@@ -83,7 +83,7 @@ fn main() {
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
     // let term_cond = Box::new(TimeoutCondition::new(225));
     let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
-    let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
+    let obs_build: Box<dyn ObsBuilder> = Box::new(AdvancedObs::new());
     let obs_build_vec = vec![obs_build];
     let act_parse = Box::new(TestAction::new());
     // let act_parse = Box::new(DiscreteAction::new());
@@ -479,7 +479,7 @@ fn main() {
     let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
     // let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
     // let obs_build_vec = vec![obs_build];
-    let mut obs_build_vec: Vec<Box<dyn ObsBuilder + Send>> = Vec::new();
+    let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..2 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));
     }
@@ -514,7 +514,12 @@ fn main() {
     state_vec.push(gym._prev_state.clone());
     let mut rew_val: f32 = 0.;
     let start_time = Instant::now();
-    let mut demos = 0;
+    let mut match_demos = 0;
+    let mut demoed = false;
+    let mut bumps_count = 0;
+    let mut bumped_count = 0;
+    let mut last_bumped_id = 0;
+    let mut last_bumpee_id = 0;
     // let mut last_blue_score_tick = 0;
     // let mut last_done_tick = 0;
     for _i in 0..(120 * 50) {
@@ -524,8 +529,13 @@ fn main() {
             gym.reset(None, None);
             state = gym._prev_state.clone();
         }
-        if state.players[0].is_demoed || state.players[1].is_demoed {
-            demos += 1;
+        if state.players[0].is_demoed {
+            match_demos = state.players[1].match_demolishes;
+            demoed = true;
+            bumps_count = state.players[1].bumps;
+            bumped_count = state.players[0].been_bumped;
+            last_bumpee_id = state.players[1].last_bumpee;
+            last_bumped_id = state.players[0].last_bumped_by;
         } else {
             // just for being able to debug here
             // let x = 0;
@@ -547,7 +557,12 @@ fn main() {
     }
 
     // let (_obs, reward, done, _info) = gym.step(actions.clone());
-    assert!(demos > 0, "No demos were deteched!");
+    println!("stats for demo test were {{match_demos: {match_demos}, demoed: {demoed} bumped_count: {bumped_count}, bumps_count: {bumps_count}, last_bumpee_id: {last_bumpee_id}, last_bumped_id: {last_bumped_id}}}");
+    assert!(match_demos > 0, "No demos were deteched!");
+    assert!(bumped_count > 0, "No bumps were detected for player 1!");
+    assert!(bumps_count > 0, "No bumps were detected for player 0!");
+    assert!(last_bumpee_id != 0, "Bumpee was not detected!");
+    assert!(last_bumped_id != 0, "Bumper was not detected!");
     let duration = start_time.elapsed();
     let seconds_elapsed = duration.as_secs_f64();
     println!("seconds elapsed: {seconds_elapsed}");

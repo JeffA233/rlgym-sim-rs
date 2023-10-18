@@ -27,6 +27,10 @@ pub struct Stats {
     pub demoed: u16,
     pub shots: u16,
     pub saves: u16,
+    pub last_bumped_by_id: u32,
+    pub last_car_bumped_id: u32,
+    pub bumps_count: u32,
+    pub bumped_count: u32,
 }
 
 pub struct RocketsimWrapper {
@@ -192,15 +196,26 @@ impl RocketsimWrapper {
 
         rocket_sim_instance.pin_mut().set_car_bump_callback(
             |_, bumper, victim, is_demo, _| {
-                // If there was a demo (and not just a normal bump)
-                if is_demo {
-                    // +1 to the bumper's demolitions stat
-                    Self::STATS.with(|stats| {
-                        let mut guard = stats.write().unwrap();
-                        guard.iter_mut().find(|(id, _)| *id == bumper).unwrap().1.demolitions += 1;
-                        guard.iter_mut().find(|(id, _)| *id == victim).unwrap().1.demoed += 1;
-                    });
-                }
+                Self::STATS.with(|stats| {
+                    let mut guard = stats.write().unwrap();
+                    // get bumper stats
+                    let stats_for_bumper_id = guard.iter_mut().find(|(id, _)| *id == bumper).unwrap();
+                    // bumper stats adjustment
+                    if is_demo {
+                        stats_for_bumper_id.1.demolitions += 1;
+                    }
+                    stats_for_bumper_id.1.bumps_count += 1;
+                    stats_for_bumper_id.1.last_car_bumped_id = victim;
+
+                    // get victim stats
+                    let stats_for_victim_id = guard.iter_mut().find(|(id, _)| *id == victim).unwrap();
+                    // victim stats adjustment
+                    if is_demo {
+                        stats_for_victim_id.1.demoed += 1;
+                    }
+                    stats_for_victim_id.1.bumped_count += 1;
+                    stats_for_victim_id.1.last_bumped_by_id = bumper;
+                });
             },
             0,
         );
@@ -462,6 +477,10 @@ impl RocketsimWrapper {
                 match_demolishes: stats.demolitions as i64,
                 boost_pickups: 0,
                 is_demoed: car.is_demoed,
+                last_bumped_by: stats.last_bumped_by_id,
+                last_bumpee: stats.last_car_bumped_id,
+                bumps: stats.bumps_count,
+                been_bumped: stats.bumped_count,
                 on_ground: car.is_on_ground,
                 // ball_touched: if self.prev_touched_ticks != car.ball_hit_info.tick_count_when_hit && !car.ball_hit_info.is_valid { self.prev_touched_ticks = car.ball_hit_info.tick_count_when_hit; true } else { false },
                 ball_touched: if car.ball_hit_info.is_valid {
