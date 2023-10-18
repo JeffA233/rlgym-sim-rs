@@ -560,6 +560,7 @@ impl RocketsimWrapper {
         // init stats
         Self::STATS.with(|stats| {
             let mut guard = stats.write().unwrap();
+            guard.clear();
             for id in car_ids.iter() {
                 guard.push((*id, Stats::default()));
             }
