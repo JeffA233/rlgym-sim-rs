@@ -2,7 +2,7 @@ use crate::{
     action_parsers::action_parser::ActionParser,
     conditionals::terminal_condition::TerminalCondition,
     obs_builders::obs_builder::ObsBuilder,
-    reward_functions::default_reward::RewardFn,
+    reward_functions::reward_fn::RewardFn,
     sim_wrapper::wrapper::RocketsimWrapper,
     state_setters::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper}, make::MakeConfig,
 };

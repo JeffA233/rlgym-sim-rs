@@ -2,7 +2,7 @@ use crate::{
     common_values::{BLUE_TEAM, CAR_MAX_SPEED},
     gamestates::{game_state::GameState, player_data::PlayerData},
     math::{element_mult_vec, element_sub_vec},
-    reward_functions::default_reward::RewardFn,
+    reward_functions::reward_fn::RewardFn,
 };
 use std::collections::HashMap;
 

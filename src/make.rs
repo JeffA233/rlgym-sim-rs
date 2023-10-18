@@ -4,7 +4,7 @@ use crate::{
     envs::game_match::{GameMatch, GameConfig}, 
     gym::Gym,
     obs_builders::obs_builder::ObsBuilder, 
-    reward_functions::default_reward::RewardFn, 
+    reward_functions::reward_fn::RewardFn, 
     state_setters::state_setter::StateSetter,
 };
 

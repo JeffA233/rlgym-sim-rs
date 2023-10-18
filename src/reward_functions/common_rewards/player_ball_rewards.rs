@@ -1,7 +1,7 @@
 use crate::{
     common_values::CAR_MAX_SPEED,
     gamestates::{game_state::GameState, player_data::PlayerData},
-    reward_functions::default_reward::RewardFn,
+    reward_functions::reward_fn::RewardFn,
 };
 
 pub struct VelocityPlayerToBallReward {

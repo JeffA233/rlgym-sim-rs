@@ -1,7 +1,7 @@
 use crate::{
     common_values::{BALL_MAX_SPEED, BLUE_GOAL_BACK, BLUE_TEAM, ORANGE_GOAL_BACK, ORANGE_TEAM},
     gamestates::{game_state::GameState, physics_object::Position, player_data::PlayerData},
-    reward_functions::default_reward::RewardFn,
+    reward_functions::reward_fn::RewardFn,
 };
 
 pub struct VelocityBallToGoalReward {

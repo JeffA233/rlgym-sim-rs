@@ -3,7 +3,7 @@ use crate::{
     math::element_mult_vec,
 };
 
-use super::default_reward::RewardFn;
+use super::reward_fn::RewardFn;
 
 /// Basic combined reward function that takes a set of reward functions and returns a single float from all of the reward functions' outputs combined
 pub struct CombinedReward {
