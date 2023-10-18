@@ -54,7 +54,7 @@ use reward_functions::{
         get_custom_reward_func, 
         get_custom_reward_func_mult_inst
     }, 
-    // default_reward::RewardFn
+    // reward_fn::RewardFn
 };
 // use action_parsers::discrete_act::DiscreteAction;
 use conditionals::{
