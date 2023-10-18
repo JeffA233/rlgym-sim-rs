@@ -46,11 +46,11 @@ use crate::{
 /// ```
 pub struct MakeConfig {
     pub game_config: GameConfig,
-    pub terminal_condition: Box<dyn TerminalCondition + Send>,
-    pub reward_fn: Box<dyn RewardFn + Send>,
-    pub obs_builder: Vec<Box<dyn ObsBuilder + Send>>,
-    pub action_parser: Box<dyn ActionParser + Send>,
-    pub state_setter: Box<dyn StateSetter + Send>, 
+    pub terminal_condition: Box<dyn TerminalCondition>,
+    pub reward_fn: Box<dyn RewardFn>,
+    pub obs_builder: Vec<Box<dyn ObsBuilder>>,
+    pub action_parser: Box<dyn ActionParser>,
+    pub state_setter: Box<dyn StateSetter>, 
 }
 
 /// General generator function for the gym.

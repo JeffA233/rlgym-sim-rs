@@ -12,11 +12,11 @@ use crate::gamestates::game_state::GameState;
 /// Struct that wraps the game structs (basically) and provides an interface to the observation builders, state setters, etc.
 pub struct GameMatch {
     pub game_config: GameConfig,
-    pub _reward_fn: Box<dyn RewardFn + Send>,
-    pub _terminal_condition: Box<dyn TerminalCondition + Send>,
-    pub _obs_builder: Vec<Box<dyn ObsBuilder + Send>>,
-    pub _action_parser: Box<dyn ActionParser + Send>,
-    pub _state_setter: Box<dyn StateSetter + Send>,
+    pub _reward_fn: Box<dyn RewardFn>,
+    pub _terminal_condition: Box<dyn TerminalCondition>,
+    pub _obs_builder: Vec<Box<dyn ObsBuilder>>,
+    pub _action_parser: Box<dyn ActionParser>,
+    pub _state_setter: Box<dyn StateSetter>,
     pub agents: usize,
     pub observation_space: Vec<usize>,
     pub action_space: Vec<usize>,
@@ -243,7 +243,7 @@ impl GameMatch {
         ]
     }
 
-    pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder + Send>>>) {
+    pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder>>>) {
         // TODO: wait for mutators to get done
         self.game_config = new_config;
         // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);

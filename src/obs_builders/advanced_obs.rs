@@ -33,12 +33,11 @@ impl AdvancedObs {
     }
 
     fn _add_player_to_obs(&self, obs: &mut Vec<f32>, car: &PlayerData, ball: &PhysicsObject, inverted: bool, player: Option<&PhysicsObject>) -> PhysicsObject {
-        let mut player_car: PhysicsObject;
-        if inverted {
-            player_car = car.inverted_car_data;
+        let player_car: PhysicsObject = if inverted {
+            car.inverted_car_data
         } else {
-            player_car = car.car_data;
-        }
+            car.car_data
+        };
 
         let mut rel_pos = ball.position - player_car.position;
         rel_pos = rel_pos.divide_by_var(self.pos_std);

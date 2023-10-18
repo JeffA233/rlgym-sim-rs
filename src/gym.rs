@@ -78,7 +78,7 @@ impl Gym {
         (obs, reward, done, info)
     }
 
-    pub fn update_config(&mut self, new_config: GameConfig, new_obs: Option<Vec<Box<dyn ObsBuilder + Send>>>) {
+    pub fn update_config(&mut self, new_config: GameConfig, new_obs: Option<Vec<Box<dyn ObsBuilder>>>) {
         self._game_match.update_settings(new_config, new_obs);
     }
 
