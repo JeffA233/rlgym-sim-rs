@@ -87,7 +87,7 @@ impl GymWrapper {
     pub fn new(team_size: usize, gravity: f32, boost: f32, tick_skip: usize, seed: Option<u64>, self_play: Option<bool>) -> Self {
         let term_cond = Box::new(CombinedTerminalConditions::new(tick_skip));
         let reward_fn = get_custom_reward_func();
-        let mut obs_build_vec = Vec::<Box<dyn ObsBuilder + Send>>::new();
+        let mut obs_build_vec = Vec::<Box<dyn ObsBuilder>>::new();
         if self_play {
             for _ in 0..team_size * 2 {
                 obs_build_vec.push(Box::new(AdvancedObsPadderStacker2::new(None, Some(0))));
@@ -145,7 +145,7 @@ impl GymWrapper {
 //         tick_skip: usize, 
 //         term_cond: Box<dyn TerminalCondition>,
 //         reward_fn: Box<dyn RewardFn>,
-//         obs_builder_vec: Vec<Box<dyn ObsBuilder + Send>>,
+//         obs_builder_vec: Vec<Box<dyn ObsBuilder>>,
 //         action_parser: Box<dyn ActionParser>,
 //         state_setter: Box<dyn StateSetter>
 //     ) -> Self;
@@ -167,7 +167,7 @@ impl GymWrapperRust {
     pub fn new(team_size: usize, gravity: f32, boost: f32, self_play: bool, tick_skip: usize, sender: Sender<Vec<f32>>) -> Self {
         let term_cond = Box::new(CombinedTerminalConditions::new(tick_skip));
         let reward_fn = get_custom_reward_func_mult_inst(sender);
-        let mut obs_build_vec = Vec::<Box<dyn ObsBuilder + Send>>::new();
+        let mut obs_build_vec = Vec::<Box<dyn ObsBuilder>>::new();
         if self_play {
             for _ in 0..team_size * 2 {
                 obs_build_vec.push(Box::new(AdvancedObsPadderStacker2::new(None, Some(0))));

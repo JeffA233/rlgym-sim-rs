@@ -2,7 +2,7 @@
 Initial release of Rust RLGym for sim. More documentation soon.
 
 # Differences between RLGym and rlgym-sim-rs
-Observation functions must be provided as a Vec (`Vec<Box<dyn ObsBuilder + Send>>`) where the lengh must be equal to the number of agents that will be in the match. The current functionality is that observation builders are per-agent and hence independent of each other.
+Observation functions must be provided as a Vec (`Vec<Box<dyn ObsBuilder>>`) where the lengh must be equal to the number of agents that will be in the match. The current functionality is that observation builders are per-agent and hence independent of each other.
 
 Terminal conditions must return only a singular boolean when called.
 

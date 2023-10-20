@@ -234,7 +234,7 @@ fn main() {
     //     StepRet {obs: Vec<f64>, rew: f64}
     // }
 
-    // pub fn worker(send_chan: Sender<Worker>, rec_chan: Receiver<Manager>, fake_state: GameState, game_config: GameConfig, mut obs_builder: Box<AdvancedObsPadderStacker2>, mut reward_fn: Box<dyn RewardFn + Send>) {
+    // pub fn worker(send_chan: Sender<Worker>, rec_chan: Receiver<Manager>, fake_state: GameState, game_config: GameConfig, mut obs_builder: Box<AdvancedObsPadderStacker2>, mut reward_fn: Box<dyn RewardFn>) {
     //     loop {
     //         // simple loop that tries to recv for as long as the Manager channel is not hung up waiting for commands from the Manager
     //         let obs: Vec<f64>;
@@ -477,7 +477,7 @@ fn main() {
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
     // let term_cond = Box::new(TimeoutCondition::new(225));
     let reward_fn = Box::new(EventReward::new(None, None, None, None, None, None, None, None));
-    // let obs_build: Box<dyn ObsBuilder + Send> = Box::new(AdvancedObs::new());
+    // let obs_build: Box<dyn ObsBuilder> = Box::new(AdvancedObs::new());
     // let obs_build_vec = vec![obs_build];
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..2 {

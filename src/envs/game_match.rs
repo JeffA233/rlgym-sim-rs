@@ -77,11 +77,11 @@ pub struct Stats {
 impl GameMatch {
     pub fn new(
         config: MakeConfig,
-        // reward_function: Box<dyn RewardFn + Send>,
-        // terminal_condition: Box<dyn TerminalCondition + Send>,
-        // obs_builder: Vec<Box<dyn ObsBuilder + Send>>,
-        // action_parser: Box<dyn ActionParser + Send>,
-        // state_setter: Box<dyn StateSetter + Send>,
+        // reward_function: Box<dyn RewardFn>,
+        // terminal_condition: Box<dyn TerminalCondition>,
+        // obs_builder: Vec<Box<dyn ObsBuilder>>,
+        // action_parser: Box<dyn ActionParser>,
+        // state_setter: Box<dyn StateSetter>,
         // team_size: Option<usize>,
         // tick_skip: Option<usize>,
         // gravity: Option<f32>,
@@ -256,7 +256,7 @@ impl GameMatch {
     }
 }
 
-// pub fn async_build_observations(mut _obs_builder: &mut (dyn ObsBuilder + Send), state: &GameState, agents: usize, _prev_actions: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
+// pub fn async_build_observations(mut _obs_builder: &mut (dyn ObsBuilder), state: &GameState, agents: usize, _prev_actions: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
 //     let mut observations = Vec::<Vec<f64>>::with_capacity(agents);
 
 //     // if state.last_touch == -1 {
@@ -279,7 +279,7 @@ impl GameMatch {
 //     return observations
 // }
 
-// pub fn async_get_rewards(mut _reward_fn: &mut (dyn RewardFn + Send), state: &GameState, done: bool, agents: usize, _prev_actions: &Vec<Vec<f64>>) -> Vec<f64> {
+// pub fn async_get_rewards(mut _reward_fn: &mut (dyn RewardFn), state: &GameState, done: bool, agents: usize, _prev_actions: &Vec<Vec<f64>>) -> Vec<f64> {
 //     let mut rewards = Vec::<f64>::with_capacity(agents);
 
 //     _reward_fn.pre_step(&state);
