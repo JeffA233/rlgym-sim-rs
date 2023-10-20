@@ -1,7 +1,7 @@
 use rocketsim_rs::{
     cxx::UniquePtr,
     math::{RotMat, Vec3},
-    sim::{Arena, CarConfig, CarControls, Team, EBoostPadState},
+    sim::{Arena, CarConfig, CarControls, Team, EBoostPadState, CarState},
     GameState as GameState_sim,
 };
 // use std::cell::RefCell;
@@ -233,50 +233,12 @@ impl RocketsimWrapper {
         let mut sim_state = self.arena.pin_mut().get_game_state();
 
         // reset boost pads
-        // old version
-        // for index in 0..self.arena.num_pads() {
-        //     self.arena.pin_mut().set_pad_state(index, EBoostPadState { is_active: true,..Default::default()})
-        // }
-
-        // new version
-        for pad in sim_state.pads.iter_mut() {
-            pad.state = EBoostPadState { is_active: true,..Default::default() }
+        for (i, pad) in sim_state.pads.iter_mut().enumerate() {
+            pad.state = state_wrapper.pads[i];
             // pad.state.cooldown = 0.;
         };
 
         // do cars
-        // old version
-        // for (car_id, car_wrapper) in self.car_ids.iter().zip(state_wrapper.cars) {
-        //     // custom initial car state
-        //     let mut car_state = self.arena.pin_mut().get_car(*car_id);
-
-        //     car_state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
-        //     car_state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
-        //     car_state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
-        //     let wrapper_rot_mtx = car_wrapper.rotation.euler_to_rotation();
-        //     car_state.rot_mat = RotMat {
-        //         forward: Vec3::new(wrapper_rot_mtx.array[0][0], wrapper_rot_mtx.array[1][0], wrapper_rot_mtx.array[2][0]),
-        //         right: Vec3::new(wrapper_rot_mtx.array[0][1], wrapper_rot_mtx.array[1][1], wrapper_rot_mtx.array[2][1]),
-        //         up: Vec3::new(wrapper_rot_mtx.array[0][2], wrapper_rot_mtx.array[1][2], wrapper_rot_mtx.array[2][2]),
-        //     };
-
-        //     if self.arena.get_mutator_config().boost_used_per_second == 0. {
-        //         car_state.boost = 100.;
-        //     } else {
-        //         car_state.boost = car_wrapper.boost * 100.;
-        //     }
-
-        //     // println!("Created custom car state");
-
-        //     // If car_id can't be found in arena than this will return Err
-        //     self.arena.pin_mut().set_car(*car_id, car_state).unwrap();
-
-        //     self.arena.pin_mut().set_car_controls(*car_id, CarControls::default()).unwrap();
-
-        //     // println!("Set car ({car_id}) state");
-        // }
-
-        // new version
         for (car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
             car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
             car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
@@ -299,24 +261,6 @@ impl RocketsimWrapper {
         }
 
         // do ball
-        // old version
-        // let mut ball_state = self.arena.pin_mut().get_ball();
-
-        // ball_state.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
-        // ball_state.vel = Vec3::new(
-        //     state_wrapper.ball.linear_velocity.x,
-        //     state_wrapper.ball.linear_velocity.y,
-        //     state_wrapper.ball.linear_velocity.z,
-        // );
-        // ball_state.ang_vel = Vec3::new(
-        //     state_wrapper.ball.angular_velocity.x,
-        //     state_wrapper.ball.angular_velocity.y,
-        //     state_wrapper.ball.angular_velocity.z,
-        // );
-
-        // self.arena.pin_mut().set_ball(ball_state);
-
-        // new version
         sim_state.ball.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
         sim_state.ball.vel = Vec3::new(
             state_wrapper.ball.linear_velocity.x,

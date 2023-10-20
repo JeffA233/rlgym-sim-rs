@@ -1,3 +1,5 @@
+use rocketsim_rs::sim::BoostPadState;
+
 use crate::gamestates::game_state::GameState;
 
 use super::{car_wrapper::CarWrapper, physics_wrapper::PhysicsWrapper};
@@ -9,6 +11,7 @@ const ORANGE_ID1: i32 = 5;
 pub struct StateWrapper {
     pub ball: PhysicsWrapper,
     pub cars: Vec<CarWrapper>,
+    pub pads: [BoostPadState; 34],
 }
 
 impl StateWrapper {
@@ -25,9 +28,11 @@ impl StateWrapper {
                 for i in 0..orange_count {
                     cars.push(CarWrapper::new(Some(1), Some(ORANGE_ID1 + i as i32), None))
                 }
+                
                 StateWrapper {
                     ball: PhysicsWrapper::new(None),
                     cars,
+                    pads: [BoostPadState { is_active: true,..Default::default() }; 34],
                 }
             }
         }
@@ -39,9 +44,18 @@ impl StateWrapper {
         for mut player in &mut game_state.players {
             cars.push(CarWrapper::new(None, None, Some(&mut player)))
         }
+
+        let mut pads = [BoostPadState::default(); 34];
+        for (i, active_float) in game_state.boost_pads.iter().enumerate() {
+            pads[i] = BoostPadState { 
+                is_active: if *active_float > 0. {true} else {false},
+                ..Default::default() 
+            };
+        }
         StateWrapper {
             ball: PhysicsWrapper::new(Some(&game_state.ball)),
             cars,
+            pads,
         }
     }
 
