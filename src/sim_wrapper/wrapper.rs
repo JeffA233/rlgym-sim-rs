@@ -20,13 +20,13 @@ use crate::{
 /// used as a means to store stats for a particular agent
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Stats {
-    pub goals: u16,
-    pub own_goals: u16,
-    pub assists: u16,
-    pub demolitions: u16,
-    pub demoed: u16,
-    pub shots: u16,
-    pub saves: u16,
+    pub goals: u32,
+    pub own_goals: u32,
+    pub assists: u32,
+    pub demolitions: u32,
+    pub demoed: u32,
+    pub shots: u32,
+    pub saves: u32,
     pub last_bumped_by_id: u32,
     pub last_car_bumped_id: u32,
     pub bumps_count: u32,
