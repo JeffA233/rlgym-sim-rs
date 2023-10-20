@@ -10,3 +10,4 @@ pub mod obs_builders;
 pub mod reward_functions;
 pub mod sim_wrapper;
 pub mod state_setters;
+pub mod state_generator;
