@@ -1,4 +1,4 @@
-use crate::{gamestates::game_state::GameState, state_setters::{random_state::RandomState, state_setter::StateSetter, default_state::DefaultState, wrappers::state_wrapper::StateWrapper}};
+use crate::{gamestates::{game_state::GameState, player_data::PlayerData}, state_setters::{random_state::RandomState, state_setter::StateSetter, default_state::DefaultState, wrappers::state_wrapper::StateWrapper}};
 
 use super::state_modifier::StateModifier;
 
@@ -21,10 +21,15 @@ impl CombinedStateGenerator {
         }
     }
 
-    pub fn generate_state(&mut self) -> GameState {
-        let mut game_state = GameState::default();
-        let wrapper = StateWrapper::new(None, None, Some(&mut game_state));
+    pub fn generate_state(&mut self, blue_count: usize, orange_count: usize) -> GameState {
+        // let mut game_state = GameState::default();
+        let wrapper = StateWrapper::new(Some(blue_count), Some(orange_count), None);
         self.state_setter.reset(&mut wrapper);
+        
+        let state_cars = Vec::<PlayerData>::new();
+        for car_wrapper in wrapper.cars {
+
+        }
         
         for modifier in self.modifiers.iter_mut() {
             modifier.modify_state(state)
