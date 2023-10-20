@@ -21,12 +21,11 @@ use rlgym_sim_rs::state_setters::default_state::{
     OrangeGoalStateTester, 
     // ExactStateTester, 
     DemoStateTester,
+    DefaultStateTesterPitched,
+    DefaultStateTester,
 };
 
-use rlgym_sim_rs::{
-    obs_builders::obs_builder::ObsBuilder,
-    state_setters::default_state::DefaultStateTester,
-};
+use rlgym_sim_rs::obs_builders::obs_builder::ObsBuilder;
 
 pub struct CombinedTerminalConditions {
     timeout_condition: TimeoutCondition,
@@ -91,7 +90,7 @@ fn main() {
     // let size = act_parse.get_action_space();
     // let size_old = act_parse_2.get_action_space();
     // let state_set = Box::new(custom_state_setters(1));
-    let state_set = Box::new(DefaultStateTester::new());
+    let state_set = Box::new(DefaultStateTesterPitched::new());
     let mut actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     // let actions2 = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.], vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     rocketsim_rs::init(None);
@@ -119,10 +118,17 @@ fn main() {
     let mut gym = make::make(game_config);
 
     // let obs = gym.reset(None, None);
-    // let last_state = gym._prev_state.clone();
     // last_state;
     // obs;
-    // let (_obs, reward, done, _info) = gym.step(actions2);
+    // test rotation matrix stuff
+    let (_obs, reward, done, _info) = gym.step(actions.clone());
+    let last_state = gym._prev_state.clone();
+    let last_invert_rot = last_state.players[0].inverted_car_data.rotation_mtx;
+    let last_invert_rot_to_quat = last_invert_rot.rotation_to_quaternion();
+    let quat = gym._prev_state.players[0].car_data.quaternion;
+    let invert_quat = quat.invert();
+    let invert_rot_mtx = invert_quat.quat_to_rot_mtx();
+    invert_rot_mtx;
     // let store = _obs;
     // store;
 

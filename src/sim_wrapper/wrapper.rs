@@ -1,7 +1,7 @@
 use rocketsim_rs::{
     cxx::UniquePtr,
     math::{RotMat, Vec3},
-    sim::{Arena, CarConfig, CarControls, Team, EBoostPadState, CarState},
+    sim::{Arena, CarConfig, CarControls, Team},
     GameState as GameState_sim,
 };
 // use std::cell::RefCell;
@@ -369,17 +369,11 @@ impl RocketsimWrapper {
                 y: -car.ang_vel.y,
                 z: car.ang_vel.z,
             };
-            inverted_car_data.quaternion = Quaternion {
-                w: car_data.quaternion.z,
-                x: car_data.quaternion.y,
-                y: -car_data.quaternion.x,
-                z: -car_data.quaternion.w,
-            };
+            inverted_car_data.quaternion = car_data.quaternion.invert();
             // no particular reason to do this I think other than to match that car_data also has a computed rot_mtx
             // previously the behavior was that each clone of the gamestate would have to recompute if not already computed
-            inverted_car_data.rotation_mtx.array[0] = [car.rot_mat.forward.x, car.rot_mat.forward.y, car.rot_mat.forward.z];
-            inverted_car_data.rotation_mtx.array[1] = [car.rot_mat.right.x, car.rot_mat.right.y, car.rot_mat.right.z];
-            inverted_car_data.rotation_mtx.array[2] = [car.rot_mat.up.x, car.rot_mat.up.y, car.rot_mat.up.z];
+            inverted_car_data.rotation_mtx = car_data.rotation_mtx.invert();
+            // inverted_car_data.rotation_mtx = inverted_car_data.quaternion.quat_to_rot_mtx();
             inverted_car_data.has_computed_rot_mtx = true;
 
             inverted_car_data.euler_angles = inverted_car_data.quaternion.quat_to_euler();

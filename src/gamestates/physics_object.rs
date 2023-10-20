@@ -48,6 +48,10 @@ impl Position {
         running_val += self.z.powi(2);
         running_val.sqrt()
     }
+
+    pub fn invert(&self) -> Self {
+        Self { x: -self.x, y: -self.y, z: self.z }
+    }
 }
 
 impl ops::Add<Position> for Position {
@@ -182,6 +186,10 @@ impl Velocity {
             return 0.;
         }
         (self.multiply_by_pos(dest_vec).into_array().iter().sum::<f32>()) / norm
+    }
+
+    pub fn invert(&self) -> Self {
+        Self { x: -self.x, y: -self.y, z: self.z }
     }
 }
 
@@ -358,6 +366,15 @@ impl Quaternion {
     pub fn into_array(&self) -> [f32; 4] {
         [self.w, self.x, self.y, self.z]
     }
+
+    pub fn invert(&self) -> Quaternion {
+        Quaternion {
+            w: self.z,
+            x: self.y,
+            y: -self.x,
+            z: -self.w,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Default)]
@@ -505,6 +522,17 @@ impl RotationMatrix {
     /// Numpy-like trace function
     pub fn trace(&self) -> f32 {
         self.array[0][0] + self.array[1][1] + self.array[2][2]
+    }
+
+    pub fn invert(&self) -> RotationMatrix {
+        let mut new_rot_mtx = RotationMatrix::default();
+        // new_rot_mtx.array[0] = [self.column(0)[0], self.column(0)[1], self.column(0)[2]];
+        // new_rot_mtx.array[1] = [self.column(1)[0], self.column(1)[1], self.column(1)[2]];
+        // new_rot_mtx.array[2] = [self.column(2)[0], self.column(2)[1], self.column(2)[2]];
+        new_rot_mtx.array[0] = [-self.column(0)[0], -self.column(1)[0], -self.column(2)[0]];
+        new_rot_mtx.array[1] = [-self.column(0)[1], -self.column(1)[1], -self.column(1)[1]];
+        new_rot_mtx.array[2] = [self.column(0)[2], self.column(1)[2], self.column(2)[2]];
+        new_rot_mtx
     }
 }
 

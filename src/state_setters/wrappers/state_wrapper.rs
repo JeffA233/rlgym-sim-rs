@@ -48,7 +48,7 @@ impl StateWrapper {
         let mut pads = [BoostPadState::default(); 34];
         for (i, active_float) in game_state.boost_pads.iter().enumerate() {
             pads[i] = BoostPadState { 
-                is_active: if *active_float > 0. {true} else {false},
+                is_active: *active_float > 0.,
                 ..Default::default() 
             };
         }
