@@ -98,6 +98,7 @@ rustfmt.toml
 
 # rust stuff
 .cargo
+Cargo.lock
 
 # maturin old stuff
 pyproject.toml_old
