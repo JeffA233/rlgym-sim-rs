@@ -11,7 +11,7 @@ use crate::{
     common_values::{BLUE_TEAM, GRAVITY_Z, ORANGE_TEAM, ROCKETSIM_BOOST_PER_SEC},
     gamestates::{
         game_state::GameState as GameState_rlgym,
-        physics_object::{PhysicsObject, Position, Quaternion, Velocity},
+        physics_object::{PhysicsObject, Position, Velocity},
         player_data::PlayerData,
     },
     state_setters::wrappers::state_wrapper::StateWrapper, envs::game_match::GameConfig,
