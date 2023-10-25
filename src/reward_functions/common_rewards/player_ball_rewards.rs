@@ -24,12 +24,12 @@ impl RewardFn for VelocityPlayerToBallReward {
         let pos_diff = state.ball.position - player.car_data.position;
 
         if self.use_scalar_projection {
-            vel.scalar_projection(&pos_diff)
+            vel.scalar_projection(pos_diff)
         } else {
             let partial = pos_diff.norm();
             let norm_pos_diff = pos_diff.divide_by_var(partial);
             let norm_vel = vel.divide_by_var(CAR_MAX_SPEED);
-            norm_pos_diff.multiply_by_vel(&norm_vel).into_array().iter().sum()
+            (norm_pos_diff * norm_vel).into_array().iter().sum()
         }
     }
 

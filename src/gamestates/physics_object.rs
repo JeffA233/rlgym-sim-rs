@@ -27,12 +27,12 @@ impl Position {
         vec![self.x, self.y, self.z]
     }
 
-    pub fn multiply_by_vel(&self, vel: &Velocity) -> Position {
-        let x = self.x * vel.x;
-        let y = self.y * vel.y;
-        let z = self.z * vel.z;
-        Position { x, y, z }
-    }
+    // pub fn multiply_by_vel(&self, vel: &Velocity) -> Position {
+    //     let x = self.x * vel.x;
+    //     let y = self.y * vel.y;
+    //     let z = self.z * vel.z;
+    //     Position { x, y, z }
+    // }
 
     pub fn divide_by_var(&self, var: f32) -> Position {
         let x = self.x / var;
@@ -66,10 +66,34 @@ impl ops::Add<Position> for Position {
     }
 }
 
+impl ops::Add<Velocity> for Position {
+    type Output = Position;
+
+    fn add(self, other_pos: Velocity) -> Self::Output {
+        Position {
+            x: self.x + other_pos.x,
+            y: self.y + other_pos.y,
+            z: self.z + other_pos.z,
+        }
+    }
+}
+
 impl ops::Sub<Position> for Position {
     type Output = Position;
 
     fn sub(self, rhs: Position) -> Self::Output {
+        Position {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl ops::Sub<Velocity> for Position {
+    type Output = Position;
+
+    fn sub(self, rhs: Velocity) -> Self::Output {
         Position {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -90,10 +114,34 @@ impl ops::Mul<Position> for Position {
     }
 }
 
+impl ops::Mul<Velocity> for Position {
+    type Output = Position;
+
+    fn mul(self, rhs: Velocity) -> Self::Output {
+        Position {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
 impl ops::Div<Position> for Position {
     type Output = Position;
 
     fn div(self, rhs: Position) -> Self::Output {
+        Position {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
+    }
+}
+
+impl ops::Div<Velocity> for Position {
+    type Output = Position;
+
+    fn div(self, rhs: Velocity) -> Self::Output {
         Position {
             x: self.x / rhs.x,
             y: self.y / rhs.y,
@@ -158,12 +206,12 @@ impl Velocity {
         vec![self.x, self.y, self.z]
     }
 
-    pub fn multiply_by_pos(&self, other_pos: &Position) -> Velocity {
-        let x = self.x * other_pos.x;
-        let y = self.y * other_pos.y;
-        let z = self.z * other_pos.z;
-        Velocity { x, y, z }
-    }
+    // pub fn multiply_by_pos(&self, other_pos: &Position) -> Velocity {
+    //     let x = self.x * other_pos.x;
+    //     let y = self.y * other_pos.y;
+    //     let z = self.z * other_pos.z;
+    //     Velocity { x, y, z }
+    // }
 
     pub fn divide_by_var(&self, var: f32) -> Velocity {
         let x = self.x / var;
@@ -180,12 +228,12 @@ impl Velocity {
         running_val.sqrt()
     }
 
-    pub fn scalar_projection(&self, dest_vec: &Position) -> f32 {
+    pub fn scalar_projection(self, dest_vec: Position) -> f32 {
         let norm = dest_vec.norm();
         if norm == 0. {
             return 0.;
         }
-        (self.multiply_by_pos(dest_vec).into_array().iter().sum::<f32>()) / norm
+        ((self * dest_vec).into_array().iter().sum::<f32>()) / norm
     }
 
     pub fn invert(&self) -> Self {
@@ -197,6 +245,18 @@ impl ops::Add<Velocity> for Velocity {
     type Output = Velocity;
 
     fn add(self, other_pos: Velocity) -> Self::Output {
+        Velocity {
+            x: self.x + other_pos.x,
+            y: self.y + other_pos.y,
+            z: self.z + other_pos.z,
+        }
+    }
+}
+
+impl ops::Add<Position> for Velocity {
+    type Output = Velocity;
+
+    fn add(self, other_pos: Position) -> Self::Output {
         Velocity {
             x: self.x + other_pos.x,
             y: self.y + other_pos.y,
@@ -217,6 +277,18 @@ impl ops::Sub<Velocity> for Velocity {
     }
 }
 
+impl ops::Sub<Position> for Velocity {
+    type Output = Velocity;
+
+    fn sub(self, rhs: Position) -> Self::Output {
+        Velocity {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl ops::Mul<Velocity> for Velocity {
     type Output = Velocity;
 
@@ -229,10 +301,34 @@ impl ops::Mul<Velocity> for Velocity {
     }
 }
 
+impl ops::Mul<Position> for Velocity {
+    type Output = Velocity;
+
+    fn mul(self, rhs: Position) -> Self::Output {
+        Velocity {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
 impl ops::Div<Velocity> for Velocity {
     type Output = Velocity;
 
     fn div(self, rhs: Velocity) -> Self::Output {
+        Velocity {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
+    }
+}
+
+impl ops::Div<Position> for Velocity {
+    type Output = Velocity;
+
+    fn div(self, rhs: Position) -> Self::Output {
         Velocity {
             x: self.x / rhs.x,
             y: self.y / rhs.y,
