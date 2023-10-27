@@ -558,7 +558,6 @@ impl RotationMatrix {
         let mut row_vec = [0.; 9];
         let mut i = 0;
         for col in self.array {
-            // FIXME: does this not need to be i = 0; after every col?
             for row_val in col {
                 row_vec[i] = row_val;
                 i += 1;

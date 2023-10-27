@@ -127,9 +127,9 @@ pub fn unitvec(vec: &[f32]) -> Vec<f32> {
     vec_div_variable(vec, &vecm)
 }
 
-pub fn cosine_simularity(a: Vec<f32>, b: Vec<f32>) -> f32 {
-    let a_norm = norm_func(&a).sqrt();
-    let b_norm = norm_func(&b).sqrt();
+pub fn cosine_similarity(a: Vec<f32>, b: Vec<f32>) -> f32 {
+    let a_norm = norm_func(&a);
+    let b_norm = norm_func(&b);
 
     // let mut a_vec: Vec<f64> = Vec::new();
     // for i in a {
