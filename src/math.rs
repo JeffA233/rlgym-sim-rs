@@ -13,20 +13,17 @@ use crate::gamestates::physics_object::RotationMatrix;
 
 // use crate::gamestates::physics_object::Quaternion;
 
-/// clips all of the values in a vec to the range between high and low
-pub fn clip(vec: Vec<f32>, high: f32, low: f32) -> Vec<f32> {
-    vec
-        .into_iter()
-        .map(|x: f32| {
-            if x > high {
-                high
-            } else if x < low {
-                low
-            } else {
-                x
-            }
-        })
-        .collect::<Vec<f32>>()
+/// clips all of the values in place to the range between high and low
+pub fn clip(vec: &mut [f32], high: f32, low: f32) {
+    for val in vec.iter_mut() {
+        *val = if *val > high {
+            high
+        } else if *val < low {
+            low
+        } else {
+            *val
+        }
+    }
 }
 
 /// Numpy-like trace function
@@ -72,12 +69,14 @@ pub fn get_dist(a: &[f32], b: &[f32]) -> Vec<f32> {
     element_sub_vec(a, b)
 }
 
-/// vector projection of two vecs and an optional mag_squared
+/// Vector projection of two vecs and an optional mag_squared.
+/// 
+/// Does not use &[f32] as it would require an extra copy for some conditions.
 pub fn vector_projection(vec: Vec<f32>, dest_vec: Vec<f32>, mag_squared: Option<f32>) -> Vec<f32> {
     assert!(vec.len() == dest_vec.len(), "length of a did not match length of b");
-    let mut _mag_squared: f32;
+    // let mut _mag_squared: f32;
 
-    _mag_squared = match mag_squared {
+    let mut _mag_squared = match mag_squared {
         Some(mag_squared) => {
             if mag_squared == 0. {
                 return dest_vec;
@@ -114,23 +113,30 @@ pub fn scalar_projection(vec: &[f32], dest_vec: &[f32]) -> f32 {
     return (element_mult_vec(vec, dest_vec).iter().sum::<f32>()) / norm;
 }
 
+/// norm squared
 pub fn squared_vecmag(vec: &[f32]) -> f32 {
     norm_func(vec).powi(2)
 }
 
+/// equal to the norm
 pub fn vecmag(vec: &[f32]) -> f32 {
     norm_func(vec)
 }
 
+/// vec / norm
 pub fn unitvec(vec: &[f32]) -> Vec<f32> {
     let vecm: f32 = norm_func(vec);
     vec_div_variable(vec, &vecm)
 }
 
+/// returns 0. if either the norm of a or b is equal to 0.
 pub fn cosine_similarity(a: Vec<f32>, b: Vec<f32>) -> f32 {
-    // FIXME: a full array of 0s may cause 0/0 which would be a NaN
     let a_norm = norm_func(&a);
     let b_norm = norm_func(&b);
+
+    if a_norm == 0. || b_norm == 0. {
+        return 0.
+    };
 
     let a_vec = vec_div_variable(&a, &a_norm);
     let b_vec = vec_div_variable(&b, &b_norm);
@@ -275,7 +281,7 @@ pub fn cosine_similarity(a: Vec<f32>, b: Vec<f32>) -> f32 {
 //     theta
 // }
 
-/// initializes a randomized Vec<f64> of length 3
+/// initializes a randomized Vec<f32> of length 3
 pub fn rand_uvec3() -> Vec<f32> {
     let mut vec: Vec<f32> = Vec::new();
     let mut rng = thread_rng();
@@ -290,7 +296,7 @@ pub fn rand_uvec3() -> Vec<f32> {
     vec
 }
 
-/// with respect to a max_norm and the rng, randomly creates a new Vec<f64> of length 3
+/// with respect to a max_norm and the rng, randomly creates a new Vec<f32> of length 3
 pub fn rand_vec3(max_norm: f32, rng: &mut StdRng) -> Vec<f32> {
     let mut res: Vec<f32> = vec![0., 0., 0.];
     for i in res.iter_mut() {

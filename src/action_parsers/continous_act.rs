@@ -14,8 +14,9 @@ impl ContinuousAction {
 impl ActionParser for ContinuousAction {
     fn parse_actions(&mut self, actions: Vec<Vec<f32>>, _state: &GameState) -> Vec<Vec<f32>> {
         let mut parsed_actions = Vec::<Vec<f32>>::new();
-        for action_vec in actions {
-            parsed_actions.push(clip(action_vec, 1., -1.));
+        for mut action_vec in actions {
+            clip(&mut action_vec, 1., -1.);
+            parsed_actions.push(action_vec);
         }
         parsed_actions
     }
