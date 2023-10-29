@@ -16,6 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.12
+      with:
+        sdk-version: 20348
     - run: rustup toolchain install stable --profile minimal
     - uses: Swatinem/rust-cache@v2.6.2
     - name: Decrypt meshes
