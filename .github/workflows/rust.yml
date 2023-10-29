@@ -19,6 +19,11 @@ jobs:
     - uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.12
       with:
         sdk-version: 20348
+    - name: Build new SDK
+      shell: bash
+      run: |
+        cmake -DCMAKE_SYSTEM_VERSION=10.0.20348.0
+        cmake --build .
     - run: rustup toolchain install stable --profile minimal
     - uses: Swatinem/rust-cache@v2.6.2
     - name: Decrypt meshes
