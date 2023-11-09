@@ -1,7 +1,12 @@
 [package]
 name = "rlgym_sim_rs"
+description = "Rust port of RLGym-sim"
+categories = ["science"]
+keywords = ["rocket-league", "rlgym", "reinforcement-learning", "gym"]
 version = "0.3.0-alpha"
 edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/JeffA233/rlgym-sim-rs"
 exclude = ["examples/lib.rs", "collision_meshes"]
 autoexamples = false
 
