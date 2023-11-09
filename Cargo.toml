@@ -2,7 +2,7 @@
 name = "rlgym_sim_rs"
 description = "Rust port of RLGym-sim"
 categories = ["science"]
-keywords = ["rocket-league", "rlgym", "reinforcement-learning", "machine-learning", "gym"]
+keywords = ["rocket-league", "rlgym", "machine-learning", "gym"]
 version = "0.3.0-alpha"
 edition = "2021"
 license = "Apache-2.0"
