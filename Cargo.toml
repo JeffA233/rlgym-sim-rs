@@ -1,6 +1,6 @@
 [package]
 name = "rlgym_sim_rs"
-version = "0.1.0"
+version = "0.3.0-alpha"
 edition = "2021"
 exclude = ["examples/lib.rs", "collision_meshes"]
 autoexamples = false
