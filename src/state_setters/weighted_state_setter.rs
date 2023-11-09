@@ -4,13 +4,13 @@ use super::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper};
 
 /// weighted state setter that uses a rand distribution to poll for a choice
 pub struct WeightedSampleSetter {
-    state_setters: Vec<Box<dyn StateSetter + Send>>,
+    state_setters: Vec<Box<dyn StateSetter>>,
     distribution: WeightedIndex<f64>,
     rng: SmallRng,
 }
 
 impl WeightedSampleSetter {
-    pub fn new(state_setters: Vec<Box<dyn StateSetter + Send>>, weights: Vec<f64>, seed: Option<u64>) -> Self {
+    pub fn new(state_setters: Vec<Box<dyn StateSetter>>, weights: Vec<f64>, seed: Option<u64>) -> Self {
         assert!(state_setters.len() == weights.len(), "WeightedSampleSetter requires the argument lengths match");
         let distribution = WeightedIndex::new(&weights).unwrap();
         let seed = match seed {
