@@ -11,9 +11,8 @@ env:
 
 jobs:
   build:
-
     runs-on: windows-latest
-
+    timeout-minutes: 25
     steps:
     - uses: actions/checkout@v3
     - uses: GuillaumeFalourd/setup-windows10-sdk-action@v1.12
