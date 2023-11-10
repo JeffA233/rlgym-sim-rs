@@ -7,7 +7,7 @@
 
 // use numpy::*;
 // use ndarray::*;
-use rand::{rngs::StdRng, *};
+use rand::{rngs::SmallRng, thread_rng, Rng};
 
 use crate::gamestates::physics_object::RotationMatrix;
 
@@ -297,7 +297,7 @@ pub fn rand_uvec3() -> Vec<f32> {
 }
 
 /// with respect to a max_norm and the rng, randomly creates a new Vec<f32> of length 3
-pub fn rand_vec3(max_norm: f32, rng: &mut StdRng) -> Vec<f32> {
+pub fn rand_vec3(max_norm: f32, rng: &mut SmallRng) -> Vec<f32> {
     let mut res: Vec<f32> = vec![0., 0., 0.];
     for i in res.iter_mut() {
         let rand_num = rng.gen::<f32>();

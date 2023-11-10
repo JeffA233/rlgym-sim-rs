@@ -18,7 +18,7 @@ pub struct RandomState {
     ball_rand_speed: bool,
     cars_rand_speed: bool,
     cars_on_ground: bool,
-    rng: StdRng,
+    rng: SmallRng,
 }
 
 impl RandomState {
@@ -30,7 +30,7 @@ impl RandomState {
             Some(seed) => seed,
             None => thread_rng().gen_range(0..10000),
         };
-        let rng = StdRng::seed_from_u64(seed);
+        let rng = SmallRng::seed_from_u64(seed);
 
         RandomState {
             ball_rand_speed,
@@ -101,6 +101,6 @@ impl StateSetter for RandomState {
     }
 
     fn set_seed(&mut self, seed: u64) {
-        self.rng = StdRng::seed_from_u64(seed);
+        self.rng = SmallRng::seed_from_u64(seed);
     }
 }
