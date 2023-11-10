@@ -10,9 +10,19 @@
 //! You can use [conditionals::extra_conditions::CombinedTerminalConditions] in order to use multiple terminal conditions at once.
 //! 
 //! ## Example of usage
+//! See [`make::make`] as a place to start.
+//! The file `lib.rs` in examples also has an example scenario for Python bindings with PyO3 if necessary.
+//! Also, see `basic_example.rs` in examples.
+//! The tests are generally also a good place to look at.
 //! 
+//! ## Status of development
+//! - The crate should currently be considered as not stable although (as far as is known) all basic features are available for use from RLGym.
+//!   + Breaking changes may occur though there will be an attempt to keep them as low as possible.
+//! - In the future, [RLViser] may be used as an optional visualizer for the gym with enough effort.
+//! - More documentation should be written soon and more data from RocketSim will likely be available for use in the gym.
 //! 
 //! [RLGym docs]: https://rlgym.org/
+//! [RLViser]: https://github.com/VirxEC/rlviser/
 
 pub mod action_parsers;
 pub mod common_values;
