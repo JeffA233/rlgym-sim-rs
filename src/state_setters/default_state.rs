@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, thread_rng, Rng, SeedableRng};
+use rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
 use std::f32::consts::PI;
 
 use crate::gamestates::physics_object::{Position, Velocity, EulerAngle};
@@ -11,7 +11,7 @@ pub struct DefaultState {
     spawn_blue_yaw: Vec<f32>,
     spawn_orange_pos: Vec<Vec<f32>>,
     spawn_orange_yaw: Vec<f32>,
-    rng: StdRng,
+    rng: SmallRng,
 }
 
 impl DefaultState {
@@ -20,7 +20,7 @@ impl DefaultState {
             Some(seed) => seed,
             None => thread_rng().gen_range(0..10000),
         };
-        let rng = StdRng::seed_from_u64(seed);
+        let rng = SmallRng::seed_from_u64(seed);
         DefaultState {
             spawn_blue_pos: vec![
                 vec![-2048., -2560., 17.],
@@ -84,7 +84,7 @@ impl StateSetter for DefaultState {
     }
 
     fn set_seed(&mut self, seed: u64) {
-        self.rng = StdRng::seed_from_u64(seed);
+        self.rng = SmallRng::seed_from_u64(seed);
     }
 }
 

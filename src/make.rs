@@ -54,6 +54,43 @@ pub struct MakeConfig {
 }
 
 /// General generator function for the gym.
+/// 
+/// Use this in order to create a gym instance.
+/// 
+/// # Example
+/// 
+/// ```
+/// use rlgym_sim_rs::{
+///     obs_builders::advanced_obs::AdvancedObs,
+///     action_parsers::test_parser::TestAction,
+///     conditionals::common_conditions::GoalScoredCondition,
+///     envs::game_match::GameConfig,
+///     reward_functions::common_rewards::misc_rewards::EventReward,
+///     state_setters::default_state::DefaultState,
+///     make,
+/// };
+/// 
+/// rocketsim_rs::init(None);
+/// 
+/// let config = GameConfig {
+///     tick_skip: 1,
+///     spawn_opponents: false,
+///     team_size: 1,
+///     gravity: 1.,
+///     boost_consumption: 1.,
+/// };
+/// 
+/// let game_config = make::MakeConfig {
+///     game_config: config,
+///     terminal_condition: Box::new(GoalScoredCondition::new()),
+///     reward_fn: Box::new(EventReward::new(None, None, None, None, None, None, None, None)),
+///     obs_builder: vec![Box::new(AdvancedObs::new())],
+///     action_parser: Box::new(TestAction::new()),
+///     state_setter: Box::new(DefaultState::new(None)), 
+/// };
+/// 
+/// let mut gym = make::make(game_config);
+/// ```
 pub fn make(mut config: MakeConfig) -> Gym {
     // let game_speed = game_config.game_speed.unwrap_or(100.);
     let tick_skip = config.game_config.tick_skip;
@@ -61,7 +98,7 @@ pub fn make(mut config: MakeConfig) -> Gym {
         println!("tick_skip was set to 0, regular RLGym has the same behavior as 1 here");
         1
     } else if tick_skip < 1 {
-        println!("tick_skip was set to {tick_skip} which is less than 1, defaulted to tick_skip=1");
+        println!("tick_skip was set to {tick_skip} which is less than 1, check your code, defaulted to tick_skip=1");
         1
     } else {
         tick_skip

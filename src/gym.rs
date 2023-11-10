@@ -10,7 +10,9 @@ use std::collections::HashMap;
 // use std::thread;
 // use std::time::Duration;
 
-/// Base Gym struct for RLGym-Rust
+/// Base Gym struct for RLGym-Rust.
+/// 
+/// See 
 pub struct Gym {
     pub _game_match: GameMatch,
     pub observation_space: Vec<usize>,
