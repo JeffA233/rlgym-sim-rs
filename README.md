@@ -10,6 +10,9 @@ Terminal conditions must return only a singular boolean when called.
 
 Info does not return the state for now. Unfortunately mixed-type HashMaps are not possible by default with PyO3 though this may be adapted in the future.
 
+## Docs
+See the docs [here](https://docs.rs/rlgym_sim_rs/latest/rlgym_sim_rs/).
+
 ## Installation
 Installed via cargo: `cargo add rlgym-sim-rs`
 
