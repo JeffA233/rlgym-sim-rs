@@ -1,7 +1,10 @@
 // use ndarray::*;
 use std::{
     // thread::JoinHandle, 
-    time::Duration};
+    time::{
+        Duration,
+        Instant,
+    }};
 
 // use std::collections::HashMap;
 use rlgym_sim_rs::action_parsers::test_parser::TestAction;
