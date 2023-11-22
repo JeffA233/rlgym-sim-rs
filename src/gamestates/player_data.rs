@@ -1,4 +1,4 @@
-use rocketsim_rs::sim::BallHitInfo;
+use rocketsim_rs::sim::{BallHitInfo, CarControls};
 
 use crate::gamestates::physics_object::PhysicsObject;
 
@@ -26,6 +26,7 @@ pub struct PlayerData {
     pub car_data: PhysicsObject,
     pub inverted_car_data: PhysicsObject,
     pub last_ball_touch_tick: u64,
+    pub last_actions: CarControls,
 }
 
 impl PlayerData {
@@ -53,6 +54,7 @@ impl PlayerData {
             car_data: PhysicsObject::new(),
             inverted_car_data: PhysicsObject::new(),
             last_ball_touch_tick: 0,
+            last_actions: CarControls::default(),
         }
     }
 }

@@ -433,6 +433,7 @@ impl RocketsimWrapper {
                 car_data,
                 inverted_car_data,
                 last_ball_touch_tick: last_touch_tick,
+                last_actions: car_info.state.last_controls,
             };
             players.push(player);
         }

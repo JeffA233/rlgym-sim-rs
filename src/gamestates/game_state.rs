@@ -2,7 +2,7 @@
 
 // use rayon::prelude::*;
 
-use rocketsim_rs::sim::BallHitInfo;
+use rocketsim_rs::sim::{BallHitInfo, CarControls};
 
 use crate::common_values::BLUE_TEAM;
 use crate::gamestates::physics_object::PhysicsObject;
@@ -248,6 +248,7 @@ impl GameState {
                     car_data: car,
                     inverted_car_data: PhysicsObject::new(),
                     last_ball_touch_tick: 0,
+                    last_actions: CarControls::default(),
                 },
                 PlayerData {
                     car_id: 2,
@@ -271,6 +272,7 @@ impl GameState {
                     car_data: car2,
                     inverted_car_data: PhysicsObject::new(),
                     last_ball_touch_tick: 0,
+                    last_actions: CarControls::default(),
                 },
             ],
             ball,
