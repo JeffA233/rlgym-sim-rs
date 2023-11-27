@@ -87,9 +87,11 @@ fn main() {
     // -- start testing self-play=false --
 
     gym.reset(None, None);
+    
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 1, "obs was not of correct length for 1v0, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 1v0");
 
     let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: false };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
@@ -103,6 +105,7 @@ fn main() {
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 2, "obs was not of correct length for 2v0, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 2v0");
 
     let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: false };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
@@ -115,6 +118,7 @@ fn main() {
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 3, "obs was not of correct length for 3v0, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 3v0");
 
     // -- start of self-play=true --
 
@@ -130,6 +134,7 @@ fn main() {
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 2, "obs was not of correct length for 1v1, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 1v1");
 
     let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: true };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
@@ -143,6 +148,7 @@ fn main() {
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 4, "obs was not of correct length for 2v2, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 2v2");
 
     let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: true };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
@@ -155,4 +161,5 @@ fn main() {
     let (obs, _, _, _) = gym.step(actions);
     let length = obs.len();
     assert!(length == 6, "obs was not of correct length for 3v3, was: {length}");
+    assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 3v3");
 }

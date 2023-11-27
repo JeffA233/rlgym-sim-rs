@@ -41,6 +41,7 @@ pub struct RocketsimWrapper {
     // orange_score: i32,
     jump_timer: f32,
     prev_touched_ticks: HashMap<u32, u64>,
+    car_id_map: HashMap<u32, u32>,
 }
 
 impl RocketsimWrapper {
@@ -65,19 +66,31 @@ impl RocketsimWrapper {
 
         rocket_sim_instance.pin_mut().reset_to_random_kickoff(None);
         let mut car_ids = Vec::new();
+        let mut car_id_map = HashMap::new();
         if config.spawn_opponents {
+            let mut i = 1;
             // spawn blue cars
             for _ in 0..config.team_size {
-                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                car_id_map.insert(car_id, i);
+                car_ids.push(car_id);
+                i += 1;
             }
             // spawn orange cars
             for _ in 0..config.team_size {
-                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                car_id_map.insert(car_id, i);
+                car_ids.push(car_id);
+                i += 1;
             }
         } else {
+            let mut i = 1;
             // spawn blue cars
-            for _ in 0..config.team_size {
-                car_ids.push(rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            for _ in 0..config.team_size as u32 {
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                car_id_map.insert(car_id, i);
+                car_ids.push(car_id);
+                i += 1;
             }
         }
 
@@ -226,6 +239,7 @@ impl RocketsimWrapper {
             tick_skip: config.tick_skip,
             jump_timer: 1.25,
             prev_touched_ticks: HashMap::new(),
+            car_id_map,
         }
     }
 
@@ -404,9 +418,14 @@ impl RocketsimWrapper {
             } else {
                 0
             };
-
+            
+            let car_id_op = self.car_id_map.get(&car_info.id);
+            let car_id = match car_id_op {
+                Some(val) => *val,
+                None => panic!("unable to find id in car id map")
+            };
             let player = PlayerData {
-                car_id: car_info.id as i32,
+                car_id: car_id as i32,
                 team_num: if car_info.team == Team::BLUE { BLUE_TEAM } else { ORANGE_TEAM },
                 match_goals: (orange_score + blue_score) as i64,
                 // TODO: adapt PlayerData struct to structs that represent better RocketSim data
@@ -476,7 +495,7 @@ impl RocketsimWrapper {
         } else {
             new_config.team_size
         };
-        
+
         if car_ids.len() != car_count {
             for car_id in car_ids.iter() {
                 let err = self.arena.pin_mut().remove_car(*car_id);
@@ -487,21 +506,33 @@ impl RocketsimWrapper {
             }
 
             car_ids.clear();
+            self.car_id_map.clear();
     
             // let mut car_ids = Vec::new();
             if new_config.spawn_opponents {
+                let mut i = 1;
                 // spawn blue cars
                 for _ in 0..new_config.team_size {
-                    car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                    self.car_id_map.insert(car_id, i);
+                    car_ids.push(car_id);
+                    i += 1;
                 }
                 // spawn orange cars
                 for _ in 0..new_config.team_size {
-                    car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+                    let car_id = self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                    self.car_id_map.insert(car_id, i);
+                    car_ids.push(car_id);
+                    i += 1;
                 }
             } else {
+                let mut i = 1;
                 // spawn blue cars
-                for _ in 0..new_config.team_size {
-                    car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+                for _ in 0..new_config.team_size as u32 {
+                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                    self.car_id_map.insert(car_id, i);
+                    car_ids.push(car_id);
+                    i += 1;
                 }
             }
         }
