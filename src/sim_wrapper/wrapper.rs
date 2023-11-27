@@ -468,31 +468,67 @@ impl RocketsimWrapper {
         sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * new_config.boost_consumption;
         self.arena.pin_mut().set_mutator_config(sim_mutator_config);
 
-        let car_ids = self.arena.get_cars();
-        for car_id in car_ids {
-            let err = self.arena.pin_mut().remove_car(car_id);
-            match err {
-                Ok(val) => val,
-                Err(err) => println!("unable to remove car: {err}")
-            };
-        }
+        let mut car_ids = self.arena.get_cars();
 
-        let mut car_ids = Vec::new();
-        if new_config.spawn_opponents {
-            // spawn blue cars
-            for _ in 0..new_config.team_size {
-                car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
-            }
-            // spawn orange cars
-            for _ in 0..new_config.team_size {
-                car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
-            }
+        // check if car count is the same so that we don't update
+        let car_count = if new_config.spawn_opponents {
+            new_config.team_size * 2
         } else {
-            // spawn blue cars
-            for _ in 0..new_config.team_size {
-                car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+            new_config.team_size
+        };
+        
+        if car_ids.len() != car_count {
+            for car_id in car_ids.iter() {
+                let err = self.arena.pin_mut().remove_car(*car_id);
+                match err {
+                    Ok(val) => val,
+                    Err(err) => println!("unable to remove car: {err}")
+                };
+            }
+
+            car_ids.clear();
+    
+            // let mut car_ids = Vec::new();
+            if new_config.spawn_opponents {
+                // spawn blue cars
+                for _ in 0..new_config.team_size {
+                    car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+                }
+                // spawn orange cars
+                for _ in 0..new_config.team_size {
+                    car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+                }
+            } else {
+                // spawn blue cars
+                for _ in 0..new_config.team_size {
+                    car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+                }
             }
         }
+        // for car_id in car_ids {
+        //     let err = self.arena.pin_mut().remove_car(car_id);
+        //     match err {
+        //         Ok(val) => val,
+        //         Err(err) => println!("unable to remove car: {err}")
+        //     };
+        // }
+
+        // let mut car_ids = Vec::new();
+        // if new_config.spawn_opponents {
+        //     // spawn blue cars
+        //     for _ in 0..new_config.team_size {
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+        //     }
+        //     // spawn orange cars
+        //     for _ in 0..new_config.team_size {
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+        //     }
+        // } else {
+        //     // spawn blue cars
+        //     for _ in 0..new_config.team_size {
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+        //     }
+        // }
 
         self.arena.pin_mut().reset_to_random_kickoff(None);
 

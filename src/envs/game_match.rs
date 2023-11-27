@@ -118,7 +118,8 @@ impl GameMatch {
 
     pub fn episode_reset(&mut self, initial_state: &GameState) {
         self._spectator_ids = initial_state.players.iter().map(|x| x.car_id).collect();
-        self._prev_actions.fill(vec![0.; 8]);
+        // self._prev_actions.fill(vec![0.; 8]);
+        self._prev_actions = vec![vec![0.; 8]; self.agents];
         self._terminal_condition.reset(initial_state);
         self._reward_fn.reset(initial_state);
         self._obs_builder.iter_mut().map(|func| func.reset(initial_state)).for_each(drop);
@@ -244,8 +245,14 @@ impl GameMatch {
     }
 
     pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder>>>) {
-        // TODO: wait for mutators to get done
+        // TODO: do extra modes and more mutators
         self.game_config = new_config;
+        let car_count = if new_config.spawn_opponents {
+            new_config.team_size * 2
+        } else {
+            new_config.team_size
+        };
+        self.agents = car_count;
         // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);
         if let Some(val) = new_obs_builder { self._obs_builder = val }
         self.sim_wrapper.set_game_config(new_config);
