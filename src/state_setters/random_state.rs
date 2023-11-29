@@ -5,8 +5,8 @@ use crate::math::rand_vec3;
 
 use super::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper};
 
-const X_MAX: f32 = 7000.;
-const Y_MAX: f32 = 9000.;
+const X_MAX: f32 = 6726.;
+const Y_MAX: f32 = 8902.;
 const Z_MAX_BALL: f32 = 1850.;
 const Z_MAX_CAR: f32 = 1900.;
 const PITCH_MAX: f32 = PI / 2.;
