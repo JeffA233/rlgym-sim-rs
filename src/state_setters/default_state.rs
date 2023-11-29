@@ -63,7 +63,7 @@ impl StateSetter for DefaultState {
             let pos;
             let yaw: f32;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 yaw = self.spawn_blue_yaw[spawn_inds[blue_count]];
                 blue_count += 1;
@@ -178,7 +178,7 @@ impl StateSetter for DefaultStateTester {
             let pos;
             let yaw: f32;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 yaw = self.spawn_blue_yaw[spawn_inds[blue_count]];
                 blue_count += 1;
@@ -248,7 +248,7 @@ impl StateSetter for DefaultStateTesterPitched {
             let pos;
             let yaw: f32;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 yaw = self.spawn_blue_yaw[spawn_inds[blue_count]];
                 blue_count += 1;
@@ -318,7 +318,7 @@ impl StateSetter for BlueGoalStateTester {
             let pos;
             let yaw: f32;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 yaw = self.spawn_blue_yaw[spawn_inds[blue_count]];
                 blue_count += 1;
@@ -388,7 +388,7 @@ impl StateSetter for OrangeGoalStateTester {
             let pos;
             let yaw: f32;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 yaw = self.spawn_blue_yaw[spawn_inds[blue_count]];
                 blue_count += 1;
@@ -458,7 +458,7 @@ impl StateSetter for AgentBallHitStateTester {
             let pos;
             // let yaw: f64;
 
-            if car.team_num == 0 {
+            if car.get_team_num() == 0 {
                 pos = self.spawn_blue_pos[spawn_inds[blue_count]].clone();
                 // yaw = self.spawn_blue_yaw[spawn_inds[blue_count]].clone();
                 blue_count += 1;

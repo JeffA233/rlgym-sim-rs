@@ -6,8 +6,8 @@ use crate::gamestates::{
 /// Car wrapper that allows for easy modification of all of the units in a car (PlayerData, PhysicsObject)
 pub struct CarWrapper {
     pub rotation: EulerAngle,
-    pub team_num: i32,
-    pub id: i32,
+    team_num: i32,
+    id: i32,
     pub boost: f32,
     pub position: Position,
     pub linear_velocity: Velocity,
@@ -67,6 +67,14 @@ impl CarWrapper {
         if let Some(x) = x { self.angular_velocity.x = x }
         if let Some(y) = y { self.angular_velocity.y = y }
         if let Some(z) = z { self.angular_velocity.z = z }
+    }
+
+    pub fn get_team_num(&self) -> i32 {
+        self.team_num
+    }
+
+    pub fn get_car_id(&self) -> i32 {
+        self.id
     }
 
     // pub fn encode(&self) -> Vec<f64> {

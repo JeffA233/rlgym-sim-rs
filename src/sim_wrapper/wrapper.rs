@@ -256,22 +256,20 @@ impl RocketsimWrapper {
             // pad.state.cooldown = 0.;
         };
 
-        // do cars
-        // for (car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
-        
-        // we need to go from rlgym id to rocketsim id
+        // cars
+
+        // if we need to go from rlgym id to rocketsim id
         // let mut reverse_id_map = HashMap::new();
         // self.car_id_map.iter().for_each(|(k, v)| {reverse_id_map.insert(*v, *k);});
         //
         for car_info in sim_state.cars.iter_mut() {
-            // find the rocketsim car with the correct id now
+            // find the rocketsim car with the correct id
             let rlgym_id = *self.car_id_map.get(&(car_info.id)).unwrap();
-            let car_wrapper_op = state_wrapper.cars.iter().find(|car| car.id == rlgym_id);
+            let car_wrapper_op = state_wrapper.cars.iter().find(|car| car.get_car_id() == rlgym_id);
             let car_wrapper = match car_wrapper_op {
                 Some(val) => val,
                 None => panic!("Unable to find car that had the correct id in the sim from the state wrapper. This is likely an error from the state setter.")
             };
-
             // dbg
             // let mut car_wrapper = &CarWrapper::new(None, None, None);
             // for car in state_wrapper.cars.iter() {
@@ -281,6 +279,7 @@ impl RocketsimWrapper {
             //     }
             // };
             //
+
             car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
             car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
             car_info.state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
@@ -301,7 +300,7 @@ impl RocketsimWrapper {
             self.arena.pin_mut().set_car_controls(car_info.id, CarControls::default()).unwrap();
         }
 
-        // do ball
+        // ball
         sim_state.ball.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
         sim_state.ball.vel = Vec3::new(
             state_wrapper.ball.linear_velocity.x,
