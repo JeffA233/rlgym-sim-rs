@@ -5,7 +5,7 @@ use std::ops;
 
 // start of helper structs
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub struct Position {
     pub x: f32,
     pub y: f32,
@@ -184,7 +184,7 @@ impl IntoIterator for Position {
     }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,
@@ -371,7 +371,7 @@ impl IntoIterator for Velocity {
     }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub struct Quaternion {
     pub w: f32,
     pub x: f32,
@@ -473,7 +473,7 @@ impl Quaternion {
     }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 pub struct EulerAngle {
     pub pitch: f32,
     pub yaw: f32,
@@ -521,7 +521,7 @@ impl EulerAngle {
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct RotationMatrix {
     pub array: [[f32; 3]; 3],
 }
@@ -636,7 +636,7 @@ impl RotationMatrix {
 // start of PhysicsObject struct
 
 /// Struct that holds any kind of physics data for car/ball
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct PhysicsObject {
     pub position: Position,
     pub quaternion: Quaternion,

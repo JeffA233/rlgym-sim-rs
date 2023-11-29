@@ -11,7 +11,7 @@ use crate::gamestates::player_data::PlayerData;
 use super::physics_object::{Position, Velocity};
 
 /// Struct that holds the current state of the game using objects like PhysicsObject and PlayerData
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GameState {
     pub game_type: i32,
     pub blue_score: i32,
