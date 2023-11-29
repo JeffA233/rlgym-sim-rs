@@ -43,7 +43,7 @@ impl Gym {
         // };
         if let Some(seed) = seed { self._game_match.set_seeds(seed) };
 
-        let state_wrapper = self._game_match.get_reset_state();
+        let state_wrapper = self._game_match.get_reset_state(&self._prev_state);
 
         // set the sim state and get the state from the sim
         let state = self._game_match.sim_wrapper.set_state(state_wrapper);

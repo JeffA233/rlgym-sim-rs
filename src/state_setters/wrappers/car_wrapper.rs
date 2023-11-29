@@ -15,15 +15,15 @@ pub struct CarWrapper {
 }
 
 impl CarWrapper {
-    pub fn new(team_num: Option<i32>, id: Option<i32>, player_data: Option<&mut PlayerData>) -> Self {
+    pub fn new(team_num: Option<i32>, id: Option<i32>, player_data: Option<&PlayerData>) -> Self {
         let team_num = team_num.unwrap_or(-1);
-        let id = id.unwrap_or(-1);
+        // let id = id.unwrap_or(-1);
         match player_data {
             Some(player_data) => CarWrapper::_read_from_player_data(player_data),
             None => CarWrapper {
                 rotation: EulerAngle { pitch: 0., yaw: 0., roll: 0. },
                 team_num,
-                id,
+                id: id.unwrap_or(-1),
                 boost: 0.,
                 position: Position { x: 0., y: 0., z: 0. },
                 linear_velocity: Velocity { x: 0., y: 0., z: 0. },
@@ -32,7 +32,7 @@ impl CarWrapper {
         }
     }
 
-    fn _read_from_player_data(player_data: &mut PlayerData) -> CarWrapper {
+    fn _read_from_player_data(player_data: &PlayerData) -> CarWrapper {
         CarWrapper {
             rotation: player_data.car_data.euler_angles(),
             team_num: player_data.team_num,

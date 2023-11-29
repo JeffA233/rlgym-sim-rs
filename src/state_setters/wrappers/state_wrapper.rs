@@ -4,8 +4,8 @@ use crate::gamestates::game_state::GameState;
 
 use super::{car_wrapper::CarWrapper, physics_wrapper::PhysicsWrapper};
 
-const BLUE_ID1: i32 = 1;
-const ORANGE_ID1: i32 = 5;
+// const BLUE_ID1: i32 = 1;
+// const ORANGE_ID1: i32 = 5;
 
 /// State wrapper that allows for easy modification of the state via itself
 pub struct StateWrapper {
@@ -15,18 +15,21 @@ pub struct StateWrapper {
 }
 
 impl StateWrapper {
-    pub fn new(blue_count: Option<usize>, orange_count: Option<usize>, game_state: Option<&mut GameState>) -> Self {
+    pub fn new(blue_count: Option<usize>, orange_count: Option<usize>, game_state: Option<&GameState>) -> Self {
         let blue_count = blue_count.unwrap_or(0);
         let orange_count = orange_count.unwrap_or(0);
         match game_state {
             Some(game_state) => StateWrapper::_read_from_gamestate(game_state),
             None => {
                 let mut cars = Vec::<CarWrapper>::new();
-                for i in 0..blue_count {
-                    cars.push(CarWrapper::new(Some(0), Some(BLUE_ID1 + i as i32), None))
+                let mut i = 0;
+                for _ in 0..blue_count {
+                    i += 1;
+                    cars.push(CarWrapper::new(Some(0), Some(i), None))
                 }
-                for i in 0..orange_count {
-                    cars.push(CarWrapper::new(Some(1), Some(ORANGE_ID1 + i as i32), None))
+                for _ in 0..orange_count {
+                    i += 1;
+                    cars.push(CarWrapper::new(Some(1), Some(i), None))
                 }
                 
                 StateWrapper {
@@ -38,11 +41,11 @@ impl StateWrapper {
         }
     }
 
-    fn _read_from_gamestate(game_state: &mut GameState) -> StateWrapper {
+    fn _read_from_gamestate(game_state: &GameState) -> StateWrapper {
         let mut cars = Vec::<CarWrapper>::new();
         // let players = &mut game_state.players;
-        for mut player in &mut game_state.players {
-            cars.push(CarWrapper::new(None, None, Some(&mut player)))
+        for player in &game_state.players {
+            cars.push(CarWrapper::new(None, None, Some(player)))
         }
 
         let mut pads = [BoostPadState::default(); 34];
@@ -52,6 +55,7 @@ impl StateWrapper {
                 ..Default::default() 
             };
         }
+        
         StateWrapper {
             ball: PhysicsWrapper::new(Some(&game_state.ball)),
             cars,

@@ -223,8 +223,8 @@ impl GameMatch {
     //     return acts
     // }
 
-    pub fn get_reset_state(&mut self) -> StateWrapper {
-        let mut new_state = self._state_setter.build_wrapper(self.game_config.team_size, self.game_config.spawn_opponents);
+    pub fn get_reset_state(&mut self, state: &GameState) -> StateWrapper {
+        let mut new_state = self._state_setter.build_wrapper(self.game_config.team_size, self.game_config.spawn_opponents, Some(state));
         self._state_setter.reset(&mut new_state);
         new_state
     }
