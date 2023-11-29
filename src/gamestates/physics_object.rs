@@ -625,7 +625,7 @@ impl RotationMatrix {
         // new_rot_mtx.array[1] = [self.column(1)[0], self.column(1)[1], self.column(1)[2]];
         // new_rot_mtx.array[2] = [self.column(2)[0], self.column(2)[1], self.column(2)[2]];
         new_rot_mtx.array[0] = [-self.column(0)[0], -self.column(1)[0], -self.column(2)[0]];
-        new_rot_mtx.array[1] = [-self.column(0)[1], -self.column(1)[1], -self.column(1)[1]];
+        new_rot_mtx.array[1] = [-self.column(0)[1], -self.column(1)[1], -self.column(2)[1]];
         new_rot_mtx.array[2] = [self.column(0)[2], self.column(1)[2], self.column(2)[2]];
         new_rot_mtx
     }
