@@ -131,7 +131,7 @@ impl GameMatch {
     pub fn build_observations(&mut self, state: &GameState) -> Vec<Vec<f32>> {
         let obs_build_len = self._obs_builder.len();
         let player_len = state.players.len();
-        assert!(obs_build_len == player_len, "not enough observation builders (len: {obs_build_len}) were provided for the amount of players (len: {player_len})");
+        assert!(obs_build_len >= player_len, "not enough observation builders (len: {obs_build_len}) were provided for the amount of players (len: {player_len})");
         // if state.last_touch == -1 {
         //     state.last_touch = self.last_touch.clone();
         // } else {
