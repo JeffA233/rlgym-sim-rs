@@ -14,7 +14,11 @@ use crate::{
         physics_object::{PhysicsObject, Position, Velocity},
         player_data::PlayerData,
     },
-    state_setters::wrappers::{state_wrapper::StateWrapper, car_wrapper::CarWrapper}, envs::game_match::GameConfig,
+    state_setters::wrappers::{
+        state_wrapper::StateWrapper, 
+        // car_wrapper::CarWrapper
+    }, 
+    envs::game_match::GameConfig,
 };
 
 /// used as a means to store stats for a particular agent
@@ -265,7 +269,7 @@ impl RocketsimWrapper {
             let car_wrapper_op = state_wrapper.cars.iter().find(|car| car.id == rlgym_id);
             let car_wrapper = match car_wrapper_op {
                 Some(val) => val,
-                None => panic!("Unable to find car that had the correct id from the state wrapper. This is likely an error from the state setter.")
+                None => panic!("Unable to find car that had the correct id in the sim from the state wrapper. This is likely an error from the state setter.")
             };
 
             // dbg
