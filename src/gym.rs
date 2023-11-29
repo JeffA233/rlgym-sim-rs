@@ -31,6 +31,7 @@ impl Gym {
             action_space,
             _prev_state: GameState::new(None),
         };
+        gym._prev_state = gym.receive_state();
         gym.reset(None, None);
 
         gym
@@ -81,7 +82,7 @@ impl Gym {
     }
 
     pub fn update_config(&mut self, new_config: GameConfig, new_obs: Option<Vec<Box<dyn ObsBuilder>>>) {
-        self._game_match.update_settings(new_config, new_obs);
+        self._prev_state = self._game_match.update_settings(new_config, new_obs);
     }
 
     // pub fn close(&mut self) {
@@ -89,7 +90,7 @@ impl Gym {
     //     self._comm_handler.close_pipe();
     // }
 
-    fn _receive_state(&mut self) -> GameState {
+    fn receive_state(&mut self) -> GameState {
         // let message = self._comm_handler.receive_message(Some(RLGYM_STATE_MESSAGE_HEADER.to_vec()));
         // if message.body[0] == -999999. {
         //     self.close();

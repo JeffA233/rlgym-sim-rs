@@ -244,7 +244,7 @@ impl GameMatch {
         ]
     }
 
-    pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder>>>) {
+    pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder>>>) -> GameState {
         // TODO: do extra modes and more mutators
         self.game_config = new_config;
         let car_count = if new_config.spawn_opponents {
@@ -255,7 +255,7 @@ impl GameMatch {
         self.agents = car_count;
         // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);
         if let Some(val) = new_obs_builder { self._obs_builder = val }
-        self.sim_wrapper.set_game_config(new_config);
+        self.sim_wrapper.set_game_config(new_config)
     }
 
     fn _auto_detech_obs_space(&mut self) {

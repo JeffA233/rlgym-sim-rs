@@ -14,7 +14,7 @@ use crate::{
         physics_object::{PhysicsObject, Position, Velocity},
         player_data::PlayerData,
     },
-    state_setters::wrappers::state_wrapper::StateWrapper, envs::game_match::GameConfig,
+    state_setters::wrappers::{state_wrapper::StateWrapper, car_wrapper::CarWrapper}, envs::game_match::GameConfig,
 };
 
 /// used as a means to store stats for a particular agent
@@ -41,7 +41,7 @@ pub struct RocketsimWrapper {
     // orange_score: i32,
     jump_timer: f32,
     prev_touched_ticks: HashMap<u32, u64>,
-    car_id_map: HashMap<u32, u32>,
+    car_id_map: HashMap<u32, i32>,
 }
 
 impl RocketsimWrapper {
@@ -253,7 +253,30 @@ impl RocketsimWrapper {
         };
 
         // do cars
-        for (car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
+        // for (car_info, car_wrapper) in sim_state.cars.iter_mut().zip(state_wrapper.cars) {
+        
+        // we need to go from rlgym id to rocketsim id
+        // let mut reverse_id_map = HashMap::new();
+        // self.car_id_map.iter().for_each(|(k, v)| {reverse_id_map.insert(*v, *k);});
+        //
+        for car_info in sim_state.cars.iter_mut() {
+            // find the rocketsim car with the correct id now
+            let rlgym_id = *self.car_id_map.get(&(car_info.id)).unwrap();
+            let car_wrapper_op = state_wrapper.cars.iter().find(|car| car.id == rlgym_id);
+            let car_wrapper = match car_wrapper_op {
+                Some(val) => val,
+                None => panic!("Unable to find car that had the correct id from the state wrapper. This is likely an error from the state setter.")
+            };
+
+            // dbg
+            // let mut car_wrapper = &CarWrapper::new(None, None, None);
+            // for car in state_wrapper.cars.iter() {
+            //     if car.id == rlgym_id {
+            //         car_wrapper = car;
+            //         break
+            //     }
+            // };
+            //
             car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
             car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
             car_info.state.ang_vel = Vec3::new(car_wrapper.angular_velocity.x, car_wrapper.angular_velocity.y, car_wrapper.angular_velocity.z);
@@ -481,7 +504,7 @@ impl RocketsimWrapper {
         }
     }
 
-    pub fn set_game_config(&mut self, new_config: GameConfig) {
+    pub fn set_game_config(&mut self, new_config: GameConfig) -> GameState_rlgym {
         let mut sim_mutator_config = self.arena.get_mutator_config();
         sim_mutator_config.gravity.z = GRAVITY_Z * new_config.gravity;
         sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * new_config.boost_consumption;
@@ -575,6 +598,7 @@ impl RocketsimWrapper {
         self.car_ids = car_ids;
         self.tick_skip = new_config.tick_skip;
 
+        self.get_rlgym_gamestate()
     }
 
     pub fn get_rlgym_gamestate(&mut self) -> GameState_rlgym {
