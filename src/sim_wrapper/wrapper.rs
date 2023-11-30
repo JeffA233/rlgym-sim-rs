@@ -247,7 +247,7 @@ impl RocketsimWrapper {
         }
     }
 
-    pub fn set_state(&mut self, state_wrapper: StateWrapper) -> GameState_rlgym {
+    pub fn set_state(&mut self, state_wrapper: StateWrapper, get_sim_state: bool) -> (GameState_rlgym, Option<GameState_sim>) {
         let mut sim_state = self.arena.pin_mut().get_game_state();
 
         // reset boost pads
@@ -318,10 +318,10 @@ impl RocketsimWrapper {
         // println!("Set ball state");
         // let sim_state = self.arena.pin_mut().get_game_state();
         // let gamestate = self.decode_gamestate(sim_state);
-        self.get_rlgym_gamestate()
+        self.get_rlgym_gamestate(get_sim_state)
     }
 
-    fn decode_gamestate(&mut self, sim_gamestate: GameState_sim) -> GameState_rlgym {
+    fn decode_gamestate(&mut self, sim_gamestate: &GameState_sim) -> GameState_rlgym {
         let curr_tick = self.arena.get_tick_count();
 
         let mut ball = PhysicsObject::new();
@@ -363,7 +363,7 @@ impl RocketsimWrapper {
         let orange_score = Self::ORANGE_SCORE.with(|val| *val.read().unwrap());
         let blue_score = Self::BLUE_SCORE.with(|val| *val.read().unwrap());
 
-        for car_info in sim_gamestate.cars {
+        for car_info in &sim_gamestate.cars {
             let car = car_info.state;
 
             let mut car_data = PhysicsObject::new();
@@ -507,7 +507,7 @@ impl RocketsimWrapper {
         }
     }
 
-    pub fn set_game_config(&mut self, new_config: GameConfig) -> GameState_rlgym {
+    pub fn set_game_config(&mut self, new_config: GameConfig, get_sim_state: bool) -> (GameState_rlgym, Option<GameState_sim>) {
         let mut sim_mutator_config = self.arena.get_mutator_config();
         sim_mutator_config.gravity.z = GRAVITY_Z * new_config.gravity;
         sim_mutator_config.boost_used_per_second = ROCKETSIM_BOOST_PER_SEC * new_config.boost_consumption;
@@ -601,16 +601,21 @@ impl RocketsimWrapper {
         self.car_ids = car_ids;
         self.tick_skip = new_config.tick_skip;
 
-        self.get_rlgym_gamestate()
+        self.get_rlgym_gamestate(get_sim_state)
     }
 
-    pub fn get_rlgym_gamestate(&mut self) -> GameState_rlgym {
+    pub fn get_rlgym_gamestate(&mut self, get_sim_state: bool) -> (GameState_rlgym, Option<GameState_sim>) {
         let rlsim_gamestate = self.arena.pin_mut().get_game_state();
-        self.decode_gamestate(rlsim_gamestate)
+        if get_sim_state {
+            (self.decode_gamestate(&rlsim_gamestate), Some(rlsim_gamestate))
+        } else {
+            (self.decode_gamestate(&rlsim_gamestate), None)
+        }
+        // self.decode_gamestate(&rlsim_gamestate)
     }
 
     /// clone actions before this to set prev_acts
-    pub fn step(&mut self, actions: Vec<Vec<f32>>) -> GameState_rlgym {
+    pub fn step(&mut self, actions: Vec<Vec<f32>>, get_sim_state: bool) -> (GameState_rlgym, Option<GameState_sim>) {
         let mut acts = Vec::<(u32, CarControls)>::new();
 
         // package spectator ids with the corresponding action to send to arena
@@ -634,7 +639,7 @@ impl RocketsimWrapper {
 
         self.arena.pin_mut().step(1);
 
-        let gamestate = self.get_rlgym_gamestate();
+        let gamestate = self.get_rlgym_gamestate(get_sim_state);
 
         // originally was here
         // self.arena.pin_mut().step(self.tick_skip as i32);

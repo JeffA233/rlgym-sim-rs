@@ -26,8 +26,9 @@ rand = { version = "0.8.5", features=["small_rng"]}
 zip = { version = "0.6.4"}
 # crossbeam-channel = { version = "0.5.8"}
 # itertools = { version = "0.11.0"}
-rocketsim_rs = {version = "0.22.3"}
+rocketsim_rs = {version = "0.22.3", features=["bin"]}
 # rustc-hash = {version = "1.1.0"}
+ctrlc = {version = "3.3.1"}
 
 # [build]
 # target = "x86_64-pc-windows-gnu"

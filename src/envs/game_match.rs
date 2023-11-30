@@ -198,7 +198,7 @@ impl GameMatch {
     }
 
     pub fn get_state(&mut self) -> GameState {
-        self.sim_wrapper.get_rlgym_gamestate()
+        self.sim_wrapper.get_rlgym_gamestate(false).0
     }
 
     pub fn parse_actions(&mut self, actions: Vec<Vec<f32>>, state: &GameState) -> Vec<Vec<f32>> {
@@ -255,7 +255,7 @@ impl GameMatch {
         self.agents = car_count;
         // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);
         if let Some(val) = new_obs_builder { self._obs_builder = val }
-        self.sim_wrapper.set_game_config(new_config)
+        self.sim_wrapper.set_game_config(new_config, false).0
     }
 
     fn _auto_detech_obs_space(&mut self) {
