@@ -165,18 +165,22 @@ impl Gym {
     }
 
     pub fn close_renderer(&mut self) {
-        let close_op = self.renderer.as_mut().unwrap().close();
-        match close_op {
-            Ok(_) => {
-                // self.renderer = Some(val);
-                // return Ok(())
-            },
-            Err(e) => {
-                println!("Unable to close renderer due to error: {e}");
-                // return Err(e)
+        if self.renderer.is_some() {
+            let close_op = self.renderer.as_mut().unwrap().close();
+            match close_op {
+                Ok(_) => {
+                    // self.renderer = Some(val);
+                    // return Ok(())
+                },
+                Err(e) => {
+                    println!("Unable to close renderer due to error: {e}");
+                    // return Err(e)
+                }
             }
+            self.renderer = None;
+        } else {
+            println!("Close rendered was called but did nothing as there was no renderer")
         }
-        self.renderer = None;
     }
 
     pub fn try_render(&mut self, render_config: RenderConfig) -> Result<(), io::Error> {

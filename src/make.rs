@@ -53,6 +53,7 @@ pub struct MakeConfig {
     pub state_setter: Box<dyn StateSetter>, 
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct RenderConfig {
     pub render: bool,
     pub update_rate: f32,
