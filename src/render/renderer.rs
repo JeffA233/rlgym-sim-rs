@@ -4,6 +4,7 @@ use std::{
     // sync::mpsc::{channel, Receiver},
     thread::sleep,
     time::{Duration, Instant},
+    process::Command,
 };
 
 // use rocketsim_rs::autocxx::WithinUniquePtr;
@@ -34,6 +35,8 @@ pub struct Renderer {
     // ctrlc_recv: Receiver<()>,
     sock_addr: SocketAddr,
 }
+
+const RLVISER_PATH: &str = if cfg!(windows) { "./rlviser.exe" } else { "./rlviser" };
 
 impl Renderer {
     pub fn new(render_config: RenderConfig) -> Result<Self, io::Error> {
@@ -72,6 +75,10 @@ impl Renderer {
         // let arena_type = GameMode::SOCCAR;
     
         // run_socket(socket, arena_type)
+
+        if let Err(e) = Command::new(RLVISER_PATH).spawn() {
+            println!("Failed to launch RLViser ({RLVISER_PATH}): {e}");
+        }
 
         let mut buf = [0; 1];
 

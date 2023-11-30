@@ -121,7 +121,7 @@ fn main() {
     let render_config = make::RenderConfig {
         render: true,
         // 2x as fast as realtime
-        update_rate: 240.
+        update_rate: 360.
     };
     let mut gym = make::make(game_config, Some(render_config));
 
