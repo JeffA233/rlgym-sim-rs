@@ -115,7 +115,7 @@ impl GymWrapper {
             action_parser: act_parse,
             state_setter: state_set, 
         };
-        let gym = make::make(game_config, false);
+        let gym = make::make(game_config, None);
         GymWrapper { gym }
     }
 
@@ -195,7 +195,7 @@ impl GymWrapperRust {
             action_parser: act_parse,
             state_setter: state_set, 
         };
-        let gym = make::make(game_config, false);
+        let gym = make::make(game_config, None);
         GymWrapperRust { gym }
     }
 

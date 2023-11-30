@@ -42,7 +42,7 @@ fn main() {
         state_setter: state_set, 
     };
 
-    let mut gym = make::make(game_config, make::RenderConfig::default());
+    let mut gym = make::make(game_config, None);
 
     gym.reset(None, None);
 

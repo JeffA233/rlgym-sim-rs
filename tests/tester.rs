@@ -118,7 +118,7 @@ fn main() {
         action_parser: act_parse,
         state_setter: state_set, 
     };
-    let mut gym = make::make(game_config, false);
+    let mut gym = make::make(game_config, None);
 
     // let obs = gym.reset(None, None);
     // last_state;
@@ -513,7 +513,7 @@ fn main() {
         action_parser: act_parse,
         state_setter: state_set, 
     };
-    let mut gym = make::make(game_config, false);
+    let mut gym = make::make(game_config, None);
 
     gym._game_match._state_setter = Box::new(DemoStateTester::new());
     gym.reset(None, None);
