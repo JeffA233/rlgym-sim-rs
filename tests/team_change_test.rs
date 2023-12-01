@@ -82,7 +82,7 @@ fn main() {
         action_parser: act_parse,
         state_setter: state_set, 
     };
-    let mut gym = make::make(game_config);
+    let mut gym = make::make(game_config, None);
 
     // -- start testing self-play=false --
 

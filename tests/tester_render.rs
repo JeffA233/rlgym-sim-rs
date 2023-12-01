@@ -118,7 +118,12 @@ fn main() {
         action_parser: act_parse,
         state_setter: state_set, 
     };
-    let mut gym = make::make(game_config, None);
+    let render_config = make::RenderConfig {
+        render: true,
+        // 2x as fast as realtime
+        update_rate: 360.
+    };
+    let mut gym = make::make(game_config, Some(render_config));
 
     // let obs = gym.reset(None, None);
     // last_state;
@@ -481,6 +486,7 @@ fn main() {
     let fps = (120. * 360.) / seconds_elapsed;
     println!("fps: {fps}");
     println!("touches: {touch_counter}");
+    gym.close_renderer();
 
     // now let's make sure demos are working ---------------------------------------------------------------------------------------------------
     let term_cond = Box::new(CombinedTerminalConditions::new(1));
@@ -513,7 +519,7 @@ fn main() {
         action_parser: act_parse,
         state_setter: state_set, 
     };
-    let mut gym = make::make(game_config, None);
+    let mut gym = make::make(game_config, Some(render_config));
 
     gym._game_match._state_setter = Box::new(DemoStateTester::new());
     gym.reset(None, None);
@@ -578,6 +584,8 @@ fn main() {
     let fps = (120. * 360.) / seconds_elapsed;
     println!("fps: {fps}");
     println!("rewards: {rew_val}");
+
+    gym.close_renderer();
 
     // gym.reset(None);
 

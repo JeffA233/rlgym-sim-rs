@@ -53,6 +53,21 @@ pub struct MakeConfig {
     pub state_setter: Box<dyn StateSetter>, 
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct RenderConfig {
+    pub render: bool,
+    pub update_rate: f32,
+}
+
+impl Default for RenderConfig {
+    fn default() -> Self {
+        Self {
+            render: false,
+            update_rate: 120.,
+        }
+    }
+}
+
 /// General generator function for the gym.
 /// 
 /// Use this in order to create a gym instance.
@@ -91,7 +106,7 @@ pub struct MakeConfig {
 /// 
 /// let mut gym = make::make(game_config);
 /// ```
-pub fn make(mut config: MakeConfig) -> Gym {
+pub fn make(mut config: MakeConfig, render_config: Option<RenderConfig>) -> Gym {
     // let game_speed = game_config.game_speed.unwrap_or(100.);
     let tick_skip = config.game_config.tick_skip;
     config.game_config.tick_skip = if tick_skip == 0 {
@@ -116,5 +131,5 @@ pub fn make(mut config: MakeConfig) -> Gym {
         // Some(spawn_opponents),
     );
 
-    Gym::new(game_match)
+    Gym::new(game_match, render_config.unwrap_or_default())
 }

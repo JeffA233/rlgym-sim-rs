@@ -1,11 +1,13 @@
 use crate::gamestates::game_state::GameState;
-
 use crate::envs::game_match::{GameMatch, GameConfig};
+use crate::make::RenderConfig;
 use crate::obs_builders::obs_builder::ObsBuilder;
+use crate::render::renderer::Renderer;
 
 // use subprocess::Popen;
 
 use std::collections::HashMap;
+use std::io;
 
 // use std::thread;
 // use std::time::Duration;
@@ -18,19 +20,37 @@ pub struct Gym {
     pub observation_space: Vec<usize>,
     pub action_space: Vec<usize>,
     pub _prev_state: GameState,
+    renderer: Option<Renderer>,
 }
 
 impl Gym {
     /// Creates a new instance of a gym and launches + connects to Rocket League instance
-    pub fn new(game_match: GameMatch) -> Self {
+    pub fn new(game_match: GameMatch, render_config: RenderConfig) -> Self {
         let observation_space = game_match.observation_space.clone();
         let action_space = game_match.action_space.clone();
+        let renderer = if render_config.render {
+            let render_op = Renderer::new(render_config);
+            match render_op {
+                Ok(val) => {
+                    Some(val)
+                },
+                Err(e) => {
+                    println!("Unable to start rendering due to error: {e}");
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
         let mut gym = Gym {
             _game_match: game_match,
             observation_space,
             action_space,
             _prev_state: GameState::new(None),
+            renderer,
         };
+
         gym._prev_state = gym.receive_state();
         gym.reset(None, None);
 
@@ -47,12 +67,43 @@ impl Gym {
         let state_wrapper = self._game_match.get_reset_state(&self._prev_state);
 
         // set the sim state and get the state from the sim
-        let state = self._game_match.sim_wrapper.set_state(state_wrapper);
+        let gym_state = if self.renderer.is_some() {
+            let (gym_state, sim_state) = self._game_match.sim_wrapper.set_state(state_wrapper, true);
 
-        self._game_match.episode_reset(&state);
-        self._prev_state = state.clone();
+            let render_op = self.renderer.as_mut().unwrap().step(sim_state.unwrap());
+            match render_op {
+                Ok(_) => {
+                    // self.renderer = Some(val);
+                    // return Ok(())
+                },
+                Err(e) => {
+                    println!("Unable to do rendering in reset due to error: {e}, attempting to close renderer");
+                    let close_op = self.renderer.as_mut().unwrap().close();
+                    match close_op {
+                        Ok(_) => {
+                            // self.renderer = Some(val);
+                            // return Ok(())
+                        },
+                        Err(e) => {
+                            println!("Unable to close renderer in reset due to error: {e}");
+                            // return Err(e)
+                        }
+                    }
+                }
+            }
 
-        self._game_match.build_observations(&state)
+            gym_state
+        } else {
+            let (gym_state, _) = self._game_match.sim_wrapper.set_state(state_wrapper, false);
+
+            gym_state
+        };
+        // let state = self._game_match.sim_wrapper.set_state(state_wrapper);
+
+        self._game_match.episode_reset(&gym_state);
+        self._prev_state = gym_state.clone();
+
+        self._game_match.build_observations(&gym_state)
         // TODO return Option except that state and get_result don't match
         // if _return_info {
         //     let mut h_m = HashMap::<&str,f64>::new();
@@ -70,15 +121,80 @@ impl Gym {
         // }
 
         // let state = self._receive_state();
-        let state = self._game_match.sim_wrapper.step(actions);
+        // let state = self._game_match.sim_wrapper.step(actions);
+        // set the sim state and get the state from the sim
+        let gym_state = if self.renderer.is_some() {
+            let (gym_state, sim_state) = self._game_match.sim_wrapper.step(actions, true);
+            
+            let render_op = self.renderer.as_mut().unwrap().step(sim_state.unwrap());
+            match render_op {
+                Ok(_) => {
+                    // self.renderer = Some(val);
+                    // return Ok(())
+                },
+                Err(e) => {
+                    println!("Unable to do rendering in reset due to error: {e}, attempting to close renderer");
+                    let close_op = self.renderer.as_mut().unwrap().close();
+                    match close_op {
+                        Ok(_) => {
+                            // self.renderer = Some(val);
+                            // return Ok(())
+                        },
+                        Err(e) => {
+                            println!("Unable to close renderer in reset due to error: {e}");
+                            // return Err(e)
+                        }
+                    }
+                }
+            }
 
-        let obs = self._game_match.build_observations(&state);
-        let done = self._game_match.is_done(&state);
-        self._prev_state = state.clone();
-        let reward = self._game_match.get_rewards(&state, done);
+            gym_state
+        } else {
+            let (gym_state, _) = self._game_match.sim_wrapper.step(actions, false);
+
+            gym_state
+        };
+
+        let obs = self._game_match.build_observations(&gym_state);
+        let done = self._game_match.is_done(&gym_state);
+        self._prev_state = gym_state.clone();
+        let reward = self._game_match.get_rewards(&gym_state, done);
         let mut info = HashMap::<String, f32>::new();
-        info.insert("result".to_string(), self._game_match.get_result(&state) as f32);
+        info.insert("result".to_string(), self._game_match.get_result(&gym_state) as f32);
         (obs, reward, done, info)
+    }
+
+    pub fn close_renderer(&mut self) {
+        if self.renderer.is_some() {
+            let close_op = self.renderer.as_mut().unwrap().close();
+            match close_op {
+                Ok(_) => {
+                    // self.renderer = Some(val);
+                    // return Ok(())
+                },
+                Err(e) => {
+                    println!("Unable to close renderer due to error: {e}");
+                    // return Err(e)
+                }
+            }
+            self.renderer = None;
+        } else {
+            println!("Close rendered was called but did nothing as there was no renderer")
+        }
+    }
+
+    pub fn try_render(&mut self, render_config: RenderConfig) -> Result<(), io::Error> {
+        let render_op = Renderer::new(render_config);
+        match render_op {
+            Ok(val) => {
+                self.renderer = Some(val);
+                Ok(())
+            },
+            Err(e) => {
+                println!("Unable to do rendering due to error: {e}");
+                Err(e)
+            }
+        }
     }
 
     pub fn update_config(&mut self, new_config: GameConfig, new_obs: Option<Vec<Box<dyn ObsBuilder>>>) {

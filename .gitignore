@@ -105,3 +105,9 @@ Cargo.lock
 
 # maturin old stuff
 pyproject.toml_old
+
+rlviser/*
+assets.path
+umodel.exe
+assets/*
+rlviser.exe
