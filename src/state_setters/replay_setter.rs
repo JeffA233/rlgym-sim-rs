@@ -96,14 +96,14 @@ mod tests{
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8};
         let mut sim = RocketsimWrapper::new(gameconfig);
-        let state = sim.get_rlgym_gamestate();
+        let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
         let path = "./tests/test_files_npy/test3.npy";
         write_npy(path, &array_to_write).unwrap();
         let mut setter = ReplaySetter::new("./tests/test_files_npy/test3.npy", Some(false), Some(false));
         let mut wrapper = setter.build_wrapper(3, true, Some(&state));
         setter.reset(&mut wrapper);
-        let state = sim.set_state(wrapper);
+        let (state, _) = sim.set_state(wrapper, false);
         assert_eq!(state.ball.position.x, 2.);
         assert_eq!(state.players[0].car_data.position.x, 3.);
         assert_eq!(state.players[5].boost_amount, 4.);
@@ -116,7 +116,7 @@ mod tests{
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 1, spawn_opponents: true,
             gravity: 1., boost_consumption: 1., tick_skip: 8};
         let mut sim = RocketsimWrapper::new(gameconfig);
-        let state = sim.get_rlgym_gamestate();
+        let (state, _) = sim.get_rlgym_gamestate(false);
         let pos_ball_0_x = 0;
         let pos_car_0_x = 9;
         let pos_car_1_boost = pos_car_0_x + (13 * 2) - 1;
@@ -131,7 +131,7 @@ mod tests{
         let mut setter = ReplaySetter::new(path, Some(false), Some(false));
         let mut wrapper = setter.build_wrapper(1, true, Some(&state));
         setter.reset(&mut wrapper);
-        let state = sim.set_state(wrapper);
+        let (state, _) = sim.set_state(wrapper, false);
         assert_eq!(state.ball.position.x, 2.);
         assert_eq!(state.players[0].car_data.position.x, 3.);
         assert_eq!(state.players[1].boost_amount, 4.);
@@ -153,14 +153,14 @@ mod tests{
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8};
         let mut sim = RocketsimWrapper::new(gameconfig);
-        let state = sim.get_rlgym_gamestate();
+        let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
         let path = "./tests/test_files_npy/test_boost.npy";
         write_npy(path, &array_to_write).unwrap();
         let mut setter = ReplaySetter::new(path, Some(true), Some(false));
         let mut wrapper = setter.build_wrapper(3, true, Some(&state));
         setter.reset(&mut wrapper);
-        let state = sim.set_state(wrapper);
+        let (state, _) = sim.set_state(wrapper, false);
         assert_ne!(state.players[5].boost_amount, 4.);
     }
 
@@ -170,7 +170,7 @@ mod tests{
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8};
         let mut sim = RocketsimWrapper::new(gameconfig);
-        let state = sim.get_rlgym_gamestate();
+        let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
         let path = "./tests/test_files_npy/test_pads.npy";
         write_npy(path, &array_to_write).unwrap();
@@ -182,7 +182,7 @@ mod tests{
                 assert!(pad.cooldown == 4. || pad.cooldown == 10.);
             }
         }
-        let state = sim.set_state(wrapper);
+        let (state, _) = sim.set_state(wrapper, false);
         //it's technically possible for this to fail if all 34 pads roll true, but that seems unlikely, but just try it again
         assert!(!state.boost_pads.iter().all(|x| *x != 0.));  
     }

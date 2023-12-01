@@ -42,7 +42,7 @@ use crate::{
 ///     state_setter: Box::new(DefaultState::new(None)), 
 /// };
 /// 
-/// let mut gym = make::make(game_config);
+/// let mut gym = make::make(game_config, None);
 /// ```
 pub struct MakeConfig {
     pub game_config: GameConfig,
@@ -104,7 +104,7 @@ impl Default for RenderConfig {
 ///     state_setter: Box::new(DefaultState::new(None)), 
 /// };
 /// 
-/// let mut gym = make::make(game_config);
+/// let mut gym = make::make(game_config, None);
 /// ```
 pub fn make(mut config: MakeConfig, render_config: Option<RenderConfig>) -> Gym {
     // let game_speed = game_config.game_speed.unwrap_or(100.);
