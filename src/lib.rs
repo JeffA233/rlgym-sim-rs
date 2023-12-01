@@ -93,3 +93,5 @@ pub use state_generator::{
     common_state_mods, 
     state_modifier::StateModifier,
 };
+
+pub use state_setters::wrappers::car_wrapper::IntoArray;

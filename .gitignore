@@ -42,6 +42,9 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+# Unit test leftovers
+tests/test_files_npy
+
 # Translations
 *.mo
 
