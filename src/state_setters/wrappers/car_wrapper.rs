@@ -1,3 +1,5 @@
+use rocketsim_rs::sim::CarControls;
+
 use crate::gamestates::{
     physics_object::{EulerAngle, Position, Velocity},
     player_data::PlayerData,
@@ -94,4 +96,23 @@ impl CarWrapper {
     //     // format!("{id} {str} {boost}")
     //     return vec
     // }
+}
+
+
+pub trait IntoArray {
+    fn into_array(self) -> [f32; 8];
+}
+
+impl IntoArray for CarControls{
+    fn into_array(self) -> [f32; 8]{
+        [self.throttle,
+        self.steer,
+        self.pitch,
+        self.yaw,
+        self.roll,
+        self.jump as u8 as f32,
+        self.boost as u8 as f32,
+        self.handbrake as u8 as f32
+        ]
+    }
 }
