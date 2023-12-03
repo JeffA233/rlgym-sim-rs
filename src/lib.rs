@@ -4,13 +4,13 @@
 //! 
 //! The first difference is that rlgym-sim-rs allows one observation builder per agent. 
 //! This means that if you have setup a 3v3 match or switch to a 3v3 match at any point, there must be 6 observation builders provided.
-//! You can either do this via the [`make::make`] function initially or you can use the `.update_config()` of `Gym`.
+//! You can either do this via the [`make()`] function initially or you can use the `.update_config()` of [Gym].
 //! 
 //! The second difference is that terminal conditions are evaluated from one function instead of allowing for multiple to be used.
-//! You can use [conditionals::extra_conditions::CombinedTerminalConditions] in order to use multiple terminal conditions at once.
+//! You can use [CombinedTerminalConditions] in order to use multiple terminal conditions at once.
 //! 
 //! ## Example of usage
-//! See [`make::make`] as a place to start.
+//! See [`make()`] as a place to start.
 //! The file `lib.rs` in examples also has an example scenario for Python bindings with PyO3 if necessary.
 //! Also, see `basic_example.rs` in examples.
 //! The tests are generally also a good place to look at.
@@ -18,7 +18,6 @@
 //! ## Status of development
 //! - The crate should currently be considered as not stable although (as far as is known) all basic features are available for use from RLGym.
 //!   + Breaking changes may occur though there will be an attempt to keep them as low as possible.
-//! - In the future, [RLViser] may be used as an optional visualizer for the gym with enough effort.
 //! - More documentation should be written soon and more data from RocketSim will likely be available for use in the gym.
 //! 
 //! [RLGym docs]: https://rlgym.org/
