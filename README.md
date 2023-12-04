@@ -8,7 +8,7 @@ Observation functions must be provided as a Vec (`Vec<Box<dyn ObsBuilder>>`) whe
 
 Terminal conditions must return only a singular boolean when called.
 
-Info does not return the state for now. Unfortunately mixed-type HashMaps are not possible by default with PyO3 though this may be adapted in the future.
+Info does not return the state for now. Unfortunately mixed-type HashMaps are not possible by default with PyO3 though this may be adapted in the future. This crate is adapted a bit more for the ease of use of bindings via PyO3, though it can be used entirely from Rust as well, so this has been left as-is for now.
 
 ## Docs
 See the docs [here](https://docs.rs/rlgym_sim_rs/latest/rlgym_sim_rs/).
@@ -19,4 +19,4 @@ Installed via cargo: `cargo add rlgym-sim-rs`
 While RocketSim will automatically compile thanks to Virx's [bindings](https://github.com/VirxEC/rocketsim-rs), you must still use your own [collision meshes](https://github.com/ZealanL/RocketSim#installation).
 
 ## Usage
-See `tests/tester.rs` and `tests/team_change_test.rs` as rough examples for now. You can also look at `examples/lib.rs` for an example of how to create Python bindings that you can use.
+See `examples/basic_examples.rs` for how to create the gym. Also see `tests/tester.rs` and `tests/team_change_test.rs` as more extensive examples. You can also look at `examples/lib.rs` for an example of how to create Python bindings that you can use.

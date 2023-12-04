@@ -53,6 +53,11 @@ pub struct MakeConfig {
     pub state_setter: Box<dyn StateSetter>, 
 }
 
+/// Render configuration struct for the `make` function. 
+/// 
+/// `update_rate:` allows you to limit the maximum speed of the gym to this many updates/sec for ease of watching.
+/// In RLViser this only affects the amount of state updates and not anything to do with the actual fps that it
+/// renders at.
 #[derive(Clone, Copy, Debug)]
 pub struct RenderConfig {
     pub render: bool,

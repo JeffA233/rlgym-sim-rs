@@ -40,7 +40,8 @@ pub mod render;
 
 pub use gym::Gym;
 pub use make::{
-    MakeConfig, 
+    MakeConfig,
+    RenderConfig,
     make,
 };
 pub use action_parsers::{
