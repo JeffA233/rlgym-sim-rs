@@ -4,7 +4,7 @@ Initial release of Rust RLGym for sim. More documentation soon.
 Originally a port of [rocket-league-gym-sim](https://github.com/AechPro/rocket-league-gym-sim/tree/main) (which is a version of [RLGym](https://www.rlgym.org)). It no longer has exactly the same functionality but the goal is moving from one to the other should not be difficult. 
 
 ## Differences between RLGym-sim and rlgym-sim-rs
-Observation functions must be provided as a Vec (`Vec<Box<dyn ObsBuilder>>`) where the lengh must be equal to the number of agents that will be in the match. The current functionality is that observation builders are per-agent and hence independent of each other.
+Observation functions must be provided as a Vec (`Vec<Box<dyn ObsBuilder>>`) where the length must be equal to the number of agents that will be in the match. The current functionality is that observation builders are per-agent and hence independent of each other.
 
 Terminal conditions must return only a singular boolean when called.
 
