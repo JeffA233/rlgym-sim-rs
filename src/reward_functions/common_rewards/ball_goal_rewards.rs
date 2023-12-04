@@ -21,7 +21,7 @@ impl VelocityBallToGoalReward {
 impl RewardFn for VelocityBallToGoalReward {
     fn reset(&mut self, _initial_state: &GameState) {}
 
-    fn get_reward(&mut self, player: &PlayerData, state: &GameState, _previous_action: &[f32]) -> f32 {
+    fn get_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
         let objective: Position = if (player.team_num == BLUE_TEAM && !self.own_goal) || (player.team_num == ORANGE_TEAM && self.own_goal) {
             ORANGE_GOAL_BACK
         } else {
@@ -46,7 +46,7 @@ impl RewardFn for VelocityBallToGoalReward {
         }
     }
 
-    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState, previous_action: &[f32]) -> f32 {
-        self.get_reward(player, state, previous_action)
+    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
+        self.get_reward(player, state)
     }
 }

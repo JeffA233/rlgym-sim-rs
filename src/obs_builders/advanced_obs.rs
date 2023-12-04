@@ -2,7 +2,7 @@
 // use std::collections::VecDeque;
 use std::f32::consts::PI;
 
-use crate::common_values;
+use crate::{common_values, IntoArray};
 use crate::gamestates::game_state::GameState;
 use crate::gamestates::physics_object::PhysicsObject;
 use crate::gamestates::player_data::PlayerData;
@@ -69,7 +69,7 @@ impl ObsBuilder for AdvancedObs {
         vec![276]
     }
 
-    fn build_obs(&mut self, player: &PlayerData, state: &GameState, _config: &crate::envs::game_match::GameConfig, previous_action: &[f32]) -> Vec<f32> {
+    fn build_obs(&mut self, player: &PlayerData, state: &GameState, _config: &crate::envs::game_match::GameConfig) -> Vec<f32> {
         let inverted: bool;
         let ball: &PhysicsObject;
         let pads: [f32; 34];
@@ -99,7 +99,7 @@ impl ObsBuilder for AdvancedObs {
         obs.extend(pos_std);
         obs.extend(lin_std);
         obs.extend(ang_std);
-        obs.extend(previous_action);
+        obs.extend(player.last_actions.into_array());
         obs.extend(pads);
 
         // self.add_ball_to_stack(pos_std, lin_std, ang_std, player.car_id as usize);

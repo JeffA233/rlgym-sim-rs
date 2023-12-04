@@ -18,7 +18,7 @@ impl VelocityPlayerToBallReward {
 impl RewardFn for VelocityPlayerToBallReward {
     fn reset(&mut self, _initial_state: &GameState) {}
 
-    fn get_reward(&mut self, player: &PlayerData, state: &GameState, _previous_action: &[f32]) -> f32 {
+    fn get_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
         let vel = &player.car_data.linear_velocity;
 
         let pos_diff = state.ball.position - player.car_data.position;
@@ -33,7 +33,7 @@ impl RewardFn for VelocityPlayerToBallReward {
         }
     }
 
-    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState, previous_action: &[f32]) -> f32 {
-        self.get_reward(player, state, previous_action)
+    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
+        self.get_reward(player, state)
     }
 }

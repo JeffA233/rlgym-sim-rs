@@ -156,8 +156,7 @@ impl GameMatch {
         state.players
             .iter()
             .zip(&mut self._obs_builder)
-            .enumerate()
-            .map(|(i, (player, func))| func.build_obs(player, state, &self.game_config, &self._prev_actions[i]))
+            .map(|(player, func)| func.build_obs(player, state, &self.game_config))
             .collect()
 
         // if observations.len() == 1 {
@@ -172,11 +171,11 @@ impl GameMatch {
 
         self._reward_fn.pre_step(state);
 
-        for (player, prev_act) in state.players.iter().zip(&self._prev_actions) {
+        for player in state.players.iter() {
             if done {
-                rewards.push(self._reward_fn.get_final_reward(player, state, prev_act));
+                rewards.push(self._reward_fn.get_final_reward(player, state));
             } else {
-                rewards.push(self._reward_fn.get_reward(player, state, prev_act));
+                rewards.push(self._reward_fn.get_reward(player, state));
             }
         }
 

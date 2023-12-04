@@ -70,7 +70,7 @@ impl RewardFn for EventReward {
         }
     }
 
-    fn get_reward(&mut self, player: &PlayerData, state: &GameState, _previous_action: &[f32]) -> f32 {
+    fn get_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
         let id = player.car_id;
         let new_values = EventReward::_extract_values(player, state);
         let old_values = self.last_registered_values.insert(id, new_values.clone());
@@ -84,8 +84,8 @@ impl RewardFn for EventReward {
         element_mult_vec(&is_value_positive, &self.weights).iter().sum()
     }
 
-    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState, previous_action: &[f32]) -> f32 {
-        self.get_reward(player, state, previous_action)
+    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
+        self.get_reward(player, state)
     }
 }
 
@@ -103,14 +103,14 @@ impl VelocityReward {
 impl RewardFn for VelocityReward {
     fn reset(&mut self, _initial_state: &GameState) {}
 
-    fn get_reward(&mut self, player: &PlayerData, _state: &GameState, _previous_action: &[f32]) -> f32 {
+    fn get_reward(&mut self, player: &PlayerData, _state: &GameState) -> f32 {
         // let norm = norm_func(&player.car_data.linear_velocity);
         let norm = player.car_data.linear_velocity.norm();
         norm / CAR_MAX_SPEED * (1 - 2 * self.negative as i32) as f32
     }
 
-    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState, previous_action: &[f32]) -> f32 {
-        self.get_reward(player, state, previous_action)
+    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
+        self.get_reward(player, state)
     }
 }
 
@@ -131,11 +131,11 @@ impl Default for SaveBoostReward {
 impl RewardFn for SaveBoostReward {
     fn reset(&mut self, _initial_state: &GameState) {}
 
-    fn get_reward(&mut self, player: &PlayerData, _state: &GameState, _previous_action: &[f32]) -> f32 {
+    fn get_reward(&mut self, player: &PlayerData, _state: &GameState) -> f32 {
         player.boost_amount.sqrt()
     }
 
-    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState, previous_action: &[f32]) -> f32 {
-        self.get_reward(player, state, previous_action)
+    fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
+        self.get_reward(player, state)
     }
 }
