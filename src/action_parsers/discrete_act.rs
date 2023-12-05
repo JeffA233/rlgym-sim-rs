@@ -17,9 +17,9 @@ impl Default for DiscreteAction {
 }
 
 impl ActionParser for DiscreteAction {
-    fn get_action_space(&mut self) -> Vec<f32> {
-        let mut act_space = vec![self.n_bins as f32; 5];
-        act_space.extend([2.; 3]);
+    fn get_action_space(&mut self) -> Vec<usize> {
+        let mut act_space = vec![self.n_bins; 5];
+        act_space.extend([2; 3]);
         act_space
     }
 
