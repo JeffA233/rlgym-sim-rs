@@ -232,6 +232,12 @@ impl IntoIterator for Position {
     }
 }
 
+impl From<Velocity> for Position {
+    fn from(value: Velocity) -> Self {
+        Self { x: value.x, y: value.y, z: value.z }
+    }
+}
+
 #[derive(Clone, Copy, Default, Debug)]
 pub struct Velocity {
     pub x: f32,
@@ -464,6 +470,12 @@ impl IntoIterator for Velocity {
     
     fn into_iter(self) -> Self::IntoIter {
         Self::IntoIter::new(self)
+    }
+}
+
+impl From<Position> for Velocity {
+    fn from(value: Position) -> Self {
+        Velocity { x: value.x, y: value.y, z: value.z }
     }
 }
 
