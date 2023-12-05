@@ -21,7 +21,7 @@ impl ActionParser for ContinuousAction {
         parsed_actions
     }
 
-    fn get_action_space(&mut self) -> Vec<f32> {
+    fn get_action_space(&mut self) -> Vec<usize> {
         vec![]
     }
 }
