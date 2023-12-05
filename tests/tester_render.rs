@@ -331,7 +331,7 @@ fn main() {
     let mut last_blue_score = 0;
     let mut last_blue_score_tick = 0;
     let mut last_done_tick = 0;
-    for _i in 0..(120 * 50) {
+    for _i in 0..(120 * 5) {
         let (_obs, reward, done, _info) = gym.step(actions.clone());
         let mut state = gym._prev_state.clone();
         if done {
@@ -371,6 +371,7 @@ fn main() {
         }
         rew_val += val;
     }
+    assert_eq!(last_blue_score, 6, "did not get the correct number of goals, got: {}", last_blue_score);
     assert_ne!(last_blue_score, 0, "did not detect a goal scored state");
     // let (_obs, reward, done, _info) = gym.step(actions.clone());
     let duration = start_time.elapsed();
@@ -390,7 +391,7 @@ fn main() {
     let mut rew_val: f32 = 0.;
     let start_time = Instant::now();
     let mut last_orange_score = 0;
-    for _i in 0..(120 * 50) {
+    for _i in 0..(120 * 5) {
         let (_obs, reward, done, _info) = gym.step(actions.clone());
         let state = gym._prev_state.clone();
         if state.orange_score != last_orange_score {
@@ -420,6 +421,8 @@ fn main() {
         rew_val += val;
     }
     // let (_obs, reward, done, _info) = gym.step(actions.clone());
+    assert_eq!(last_orange_score, 15, "did not get the correct number of goals, got: {}", last_orange_score);
+    assert_ne!(last_orange_score, 0, "did not detect a goal scored state");
     let duration = start_time.elapsed();
     let seconds_elapsed = duration.as_secs_f64();
     println!("seconds elapsed: {seconds_elapsed}");
