@@ -514,15 +514,27 @@ impl RocketsimWrapper {
         self.arena.pin_mut().set_mutator_config(sim_mutator_config);
 
         let mut car_ids = self.arena.get_cars();
+        let mut car_blue = 0;
+        let mut car_orange = 0;
+        for car_id in car_ids.iter() {
+            let team = self.arena.get_car_team(*car_id);
+            if team == Team::ORANGE {
+                car_orange += 1;
+            } else {
+                car_blue += 1;
+            }
+        }
 
         // check if car count is the same so that we don't update
-        let car_count = if new_config.spawn_opponents {
-            new_config.team_size * 2
-        } else {
-            new_config.team_size
-        };
+        // let car_count = if new_config.spawn_opponents {
+        //     new_config.team_size * 2
+        // } else {
+        //     new_config.team_size
+        // };
+        let car_count_blue = new_config.team_size;
+        let car_count_orange = if new_config.spawn_opponents {new_config.team_size} else {0};
 
-        if car_ids.len() != car_count {
+        if car_blue == car_count_blue && car_orange == car_count_orange {
             for car_id in car_ids.iter() {
                 let err = self.arena.pin_mut().remove_car(*car_id);
                 match err {
