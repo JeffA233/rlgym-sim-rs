@@ -534,7 +534,7 @@ impl RocketsimWrapper {
         let car_count_blue = new_config.team_size;
         let car_count_orange = if new_config.spawn_opponents {new_config.team_size} else {0};
 
-        if car_blue == car_count_blue && car_orange == car_count_orange {
+        if car_blue != car_count_blue || car_orange != car_count_orange {
             for car_id in car_ids.iter() {
                 let err = self.arena.pin_mut().remove_car(*car_id);
                 match err {
