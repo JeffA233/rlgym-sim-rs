@@ -186,7 +186,7 @@ impl RocketsimWrapper {
                             let assist_tick = arena.as_mut().get_car(assist).ball_hit_info.tick_count_when_hit;
 
                             // ensure that the assist is < 5s before the touch of the scoring player
-                            if (assist_tick - scorer_tick) as f32 / arena.get_tick_rate() < 5. {
+                            if (scorer_tick - assist_tick) as f32 / arena.get_tick_rate() < 5. {
                                 // println!("CAR {assist} got an ASSIST");
 
                                 // +1 to the car's assists stat
