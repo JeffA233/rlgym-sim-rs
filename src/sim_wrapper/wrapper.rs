@@ -450,6 +450,18 @@ impl RocketsimWrapper {
                 Some(val) => *val,
                 None => panic!("unable to find id in car id map")
             };
+
+            let car_bumped_by_id_op = self.car_id_map.get(&stats.last_bumped_by_id);
+            let car_bumped_by_id = match car_bumped_by_id_op {
+                Some(val) => *val,
+                None => 0,
+            };
+            let car_bumpee_id_op = self.car_id_map.get(&stats.last_car_bumped_id);
+            let car_bumpee_id = match car_bumpee_id_op {
+                Some(val) => *val,
+                None => 0,
+            };
+            
             let player = PlayerData {
                 car_id: car_id as i32,
                 team_num: if car_info.team == Team::BLUE { BLUE_TEAM } else { ORANGE_TEAM },
@@ -460,8 +472,8 @@ impl RocketsimWrapper {
                 match_demolishes: stats.demolitions as i64,
                 boost_pickups: 0,
                 is_demoed: car.is_demoed,
-                last_bumped_by: *self.car_id_map.get(&stats.last_bumped_by_id).unwrap() as u32,
-                last_bumpee: *self.car_id_map.get(&stats.last_car_bumped_id).unwrap() as u32,
+                last_bumped_by: car_bumped_by_id as u32,
+                last_bumpee: car_bumpee_id as u32,
                 bumps: stats.bumps_count,
                 been_bumped: stats.bumped_count,
                 on_ground: car.is_on_ground,
