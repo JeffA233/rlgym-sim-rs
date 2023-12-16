@@ -18,8 +18,8 @@ impl TestAction {
 }
 
 impl ActionParser for TestAction {
-    fn get_action_space(&mut self) -> Vec<f32> {
-        vec![8.]
+    fn get_action_space(&mut self) -> Vec<usize> {
+        vec![8]
     }
 
     fn parse_actions(&mut self, actions: Vec<Vec<f32>>, _state: &GameState) -> Vec<Vec<f32>> {
