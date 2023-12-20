@@ -127,14 +127,14 @@ fn main() {
     // last_state;
     // obs;
     // test rotation matrix stuff
-    let (_obs, reward, done, _info) = gym.step(actions.clone());
-    let last_state = gym._prev_state.clone();
-    let last_invert_rot = last_state.players[0].inverted_car_data.rotation_mtx;
-    let last_invert_rot_to_quat = last_invert_rot.rotation_to_quaternion();
-    let quat = gym._prev_state.players[0].car_data.quaternion;
-    let invert_quat = quat.invert();
-    let invert_rot_mtx = invert_quat.quat_to_rot_mtx();
-    invert_rot_mtx;
+    // let (_obs, reward, done, _info) = gym.step(actions.clone());
+    // let last_state = gym._prev_state.clone();
+    // let last_invert_rot = last_state.players[0].inverted_car_data.rotation_mtx;
+    // let last_invert_rot_to_quat = last_invert_rot.rotation_to_quaternion();
+    // let quat = gym._prev_state.players[0].car_data.quaternion;
+    // let invert_quat = quat.invert();
+    // let invert_rot_mtx = invert_quat.quat_to_rot_mtx();
+    // invert_rot_mtx;
     // let store = _obs;
     // store;
 
