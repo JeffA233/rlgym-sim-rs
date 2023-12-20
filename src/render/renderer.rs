@@ -30,8 +30,10 @@ enum UdpPacketTypes {
 pub struct Renderer {
     socket: UdpSocket,
     interval: Duration,
+    // tick_skip_interval: Duration,
     min_buf: [u8; GameState_sim::MIN_NUM_BYTES],
     next_time: Instant,
+    // next_time_tick_skip: Instant,
     // ctrlc_recv: Receiver<()>,
     sock_addr: SocketAddr,
 }
@@ -39,7 +41,10 @@ pub struct Renderer {
 const RLVISER_PATH: &str = if cfg!(windows) { "./rlviser.exe" } else { "./rlviser" };
 
 impl Renderer {
-    pub fn new(render_config: RenderConfig) -> Result<Self, io::Error> {
+    pub fn new(
+        render_config: RenderConfig, 
+        // tick_skip: usize
+    ) -> Result<Self, io::Error> {
         let socket_op = UdpSocket::bind("0.0.0.0:34254");
         // print the socket address
         let socket = match socket_op {
@@ -136,22 +141,26 @@ impl Renderer {
 
         // set the update rate for the rendering
         let interval = Duration::from_secs_f32(1. / render_config.update_rate);
+        // let tick_skip_interval = Duration::from_secs_f32(1. / (render_config.update_rate / tick_skip as f32));
         let next_time = Instant::now() + interval;
+        // let next_time_tick_skip = Instant::now() + tick_skip_interval;
         let min_state_set_buf = [0; GameState_sim::MIN_NUM_BYTES];
 
         Ok(
             Self {
                 socket,
                 interval,
+                // tick_skip_interval,
                 min_buf: min_state_set_buf,
                 next_time,
+                // next_time_tick_skip,
                 // ctrlc_recv: receiver,
                 sock_addr: src,
             }
         )
     }
 
-    pub fn step(&mut self, state: GameState_sim) -> io::Result<()> {
+    pub fn step(&mut self, states: Vec<GameState_sim>) -> io::Result<()> {
         // if self.ctrlc_recv.try_recv().is_ok() {
         //     let res = self.socket.send_to(&[UdpPacketTypes::Quit as u8], self.sock_addr);
         //     match res {
@@ -165,42 +174,59 @@ impl Renderer {
         //     return Ok(())
         // }
 
-        // this is more just to handle if anything gets sent back
-        let res = Renderer::handle_state_set(&mut self.min_buf, &self.socket);
-        match res {
-            Ok(val) => val,
-            Err(e) => {
-                println!("Could not receive state signal from rlviser, err: {e}");
-                return Err(e)
-            }
-        };
-
-        // send packet type
-        let res = self.socket.send_to(&[UdpPacketTypes::GameState as u8], self.sock_addr);
-        match res {
-            Ok(val) => val,
-            Err(e) => {
-                println!("Could not send state signal to rlviser, err: {e}");
-                return Err(e)
-            }
-        };
-
-        // then send the data
-        let res = self.socket.send_to(&state.to_bytes(), self.sock_addr);
-        match res {
-            Ok(val) => val,
-            Err(e) => {
-                println!("Could not send state data to rlviser, err: {e}");
-                return Err(e)
-            }
-        };
-
-        // ensure correct time to wait with interval
-        let wait_time = self.next_time - Instant::now();
-        if wait_time > Duration::default() {
-            sleep(wait_time);
+        // let states_len = states.len();
+        for state in states.into_iter() {
+            // this is more just to handle if anything gets sent back
+            let res = Renderer::handle_state_set(&mut self.min_buf, &self.socket);
+            match res {
+                Ok(val) => val,
+                Err(e) => {
+                    println!("Could not receive state signal from rlviser, err: {e}");
+                    return Err(e)
+                }
+            };
+    
+            // send packet type
+            let res = self.socket.send_to(&[UdpPacketTypes::GameState as u8], self.sock_addr);
+            match res {
+                Ok(val) => val,
+                Err(e) => {
+                    println!("Could not send state signal to rlviser, err: {e}");
+                    return Err(e)
+                }
+            };
+    
+            // then send the data
+            let res = self.socket.send_to(&state.to_bytes(), self.sock_addr);
+            match res {
+                Ok(val) => val,
+                Err(e) => {
+                    println!("Could not send state data to rlviser, err: {e}");
+                    return Err(e)
+                }
+            };
+    
+            // ensure correct time to wait with interval
+            // if i == states_len-1 {
+            //     let wait_time = self.next_time - Instant::now();
+            //     if wait_time > Duration::default() {
+            //         sleep(wait_time);
+            //     }
+            //     self.next_time += self.interval + self.tick_skip_interval;
+            // } else {
+                let wait_time = self.next_time - Instant::now();
+                if wait_time > Duration::default() {
+                    sleep(wait_time);
+                }
+                self.next_time += self.interval;
+            // }
         }
-        self.next_time += self.interval;
+
+        // let wait_time = self.next_time_tick_skip - Instant::now();
+        // if wait_time > Duration::default() {
+        //     sleep(wait_time);
+        // }
+        // self.next_time_tick_skip += self.tick_skip_interval;
 
         Ok(())
     }

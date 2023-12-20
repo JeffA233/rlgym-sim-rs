@@ -70,7 +70,7 @@ impl Gym {
         let gym_state = if self.renderer.is_some() {
             let (gym_state, sim_state) = self._game_match.sim_wrapper.set_state(state_wrapper, true);
 
-            let render_op = self.renderer.as_mut().unwrap().step(sim_state.unwrap());
+            let render_op = self.renderer.as_mut().unwrap().step(vec![sim_state.unwrap()]);
             match render_op {
                 Ok(_) => {
                     // self.renderer = Some(val);

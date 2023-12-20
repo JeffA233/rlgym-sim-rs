@@ -639,7 +639,7 @@ impl RocketsimWrapper {
     }
 
     /// clone actions before this to set prev_acts
-    pub fn step(&mut self, actions: Vec<Vec<f32>>, get_sim_state: bool) -> (GameState_rlgym, Option<GameState_sim>) {
+    pub fn step(&mut self, actions: Vec<Vec<f32>>, get_sim_state: bool) -> (GameState_rlgym, Option<Vec<GameState_sim>>) {
         let mut acts = Vec::<(u32, CarControls)>::new();
 
         // package spectator ids with the corresponding action to send to arena
@@ -663,16 +663,30 @@ impl RocketsimWrapper {
 
         self.arena.pin_mut().step(1);
 
-        let gamestate = self.get_rlgym_gamestate(get_sim_state);
+        let (gamestate_rlgym, gamestate_sim) = self.get_rlgym_gamestate(get_sim_state);
 
         // originally was here
         // self.arena.pin_mut().step(self.tick_skip as i32);
 
         // TODO: need to somehow extract ball hit information from every step probably
-        if self.tick_skip > 1 {
-            self.arena.pin_mut().step(self.tick_skip as i32 - 1);
-        }
+        if get_sim_state {
+            let mut gamestate_sim_vec = Vec::new();
+            gamestate_sim_vec.push(gamestate_sim.unwrap());
+            
+            if self.tick_skip > 1 {
+                for _ in 0..self.tick_skip-1 {
+                    self.arena.pin_mut().step(1);
+                    gamestate_sim_vec.push(self.arena.pin_mut().get_game_state());
+                }
+            }
 
-        gamestate
+            (gamestate_rlgym, Some(gamestate_sim_vec))
+        } else {
+            if self.tick_skip > 1 {
+                self.arena.pin_mut().step(self.tick_skip as i32 - 1);
+            }
+
+            (gamestate_rlgym, None)
+        }
     }
 }

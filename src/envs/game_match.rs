@@ -232,15 +232,16 @@ impl GameMatch {
         self._state_setter.set_seed(seed);
     }
 
-    pub fn get_config(&self) -> [f32; 5] {
-        let spawn_opponents_bool = if self.game_config.spawn_opponents { 1 } else { 0 };
-        [
-            self.game_config.team_size as f32,
-            spawn_opponents_bool as f32,
-            self.game_config.tick_skip as f32,
-            self.game_config.gravity,
-            self.game_config.boost_consumption,
-        ]
+    pub fn get_config(&self) -> GameConfig {
+        // let spawn_opponents_bool = if self.game_config.spawn_opponents { 1 } else { 0 };
+        // [
+        //     self.game_config.team_size as f32,
+        //     spawn_opponents_bool as f32,
+        //     self.game_config.tick_skip as f32,
+        //     self.game_config.gravity,
+        //     self.game_config.boost_consumption,
+        // ]
+        self.game_config
     }
 
     pub fn update_settings(&mut self, new_config: GameConfig, new_obs_builder: Option<Vec<Box<dyn ObsBuilder>>>) -> GameState {

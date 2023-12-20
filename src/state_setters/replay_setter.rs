@@ -73,7 +73,7 @@ impl<'a> StateSetter for ReplaySetter<'a> {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
         let index = self.rng.gen_range(0..self.states.dim().0);
         let binding = self.states.index_axis(Axis(0), index);
-        let state = binding.as_slice().unwrap().clone();
+        let state = binding.as_slice().unwrap();
         Self::set_ball(state_wrapper, state);
         self.set_cars(state_wrapper, state.to_owned());
         if self.random_pads{
