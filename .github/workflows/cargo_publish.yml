@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: login
       run: cargo login ${{ secrets.CARGO_SECRET }}
     - name: Publish
