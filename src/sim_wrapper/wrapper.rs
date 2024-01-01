@@ -321,6 +321,12 @@ impl RocketsimWrapper {
         self.get_rlgym_gamestate(get_sim_state)
     }
 
+    // used for state setting from RLViser (which returns a sim state)
+    pub fn set_state_sim(&mut self, sim_state: GameState_sim) -> GameState_rlgym {
+        self.arena.pin_mut().set_game_state(&sim_state).unwrap();
+        self.decode_gamestate(&sim_state)
+    }
+
     fn decode_gamestate(&mut self, sim_gamestate: &GameState_sim) -> GameState_rlgym {
         let curr_tick = self.arena.get_tick_count();
 

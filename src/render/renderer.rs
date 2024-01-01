@@ -11,7 +11,7 @@ use std::{
 use rocketsim_rs::{
     bytes::{
         // FromBytes, 
-        ToBytes
+        ToBytes, FromBytes
     },
     // cxx::UniquePtr,
     // math::Vec3,
@@ -160,7 +160,7 @@ impl Renderer {
         )
     }
 
-    pub fn step(&mut self, states: Vec<GameState_sim>) -> io::Result<()> {
+    pub fn step(&mut self, states: Vec<GameState_sim>) -> io::Result<Option<GameState_sim>> {
         // if self.ctrlc_recv.try_recv().is_ok() {
         //     let res = self.socket.send_to(&[UdpPacketTypes::Quit as u8], self.sock_addr);
         //     match res {
@@ -175,11 +175,18 @@ impl Renderer {
         // }
 
         // let states_len = states.len();
+        let mut state_set_bool = false;
         for state in states.into_iter() {
             // this is more just to handle if anything gets sent back
             let res = Renderer::handle_state_set(&mut self.min_buf, &self.socket);
             match res {
-                Ok(val) => val,
+                Ok(val) => {
+                    // if we received a state
+                    if val {
+                        state_set_bool = true;
+                        break
+                    }
+                },
                 Err(e) => {
                     println!("Could not receive state signal from rlviser, err: {e}");
                     return Err(e)
@@ -222,13 +229,17 @@ impl Renderer {
             // }
         }
 
+        if state_set_bool {
+            return Ok(Some(GameState_sim::from_bytes(&self.min_buf)))
+        }
+
         // let wait_time = self.next_time_tick_skip - Instant::now();
         // if wait_time > Duration::default() {
         //     sleep(wait_time);
         // }
         // self.next_time_tick_skip += self.tick_skip_interval;
 
-        Ok(())
+        Ok(None)
     }
 
     pub fn close(&mut self) -> io::Result<()> {
@@ -248,7 +259,7 @@ impl Renderer {
         min_state_set_buf: &mut [u8; GameState_sim::MIN_NUM_BYTES],
         socket: &UdpSocket,
         // arena: &mut UniquePtr<Arena>,
-    ) -> io::Result<()> {
+    ) -> io::Result<bool> {
         let mut state_set_buf = Vec::new();
     
         while socket.peek_from(min_state_set_buf).is_ok() {
@@ -261,7 +272,7 @@ impl Renderer {
     
         // the socket didn't send data back
         if state_set_buf.is_empty() {
-            return Ok(());
+            return Ok(false);
         }
     
         // set the game state
@@ -270,7 +281,7 @@ impl Renderer {
         //     println!("Error setting game state: {e}");
         // };
     
-        Ok(())
+        Ok(true)
     }
 
     // fn ctrl_channel() -> Result<Receiver<()>, ctrlc::Error> {

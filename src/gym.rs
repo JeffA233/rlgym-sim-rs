@@ -72,21 +72,14 @@ impl Gym {
 
             let render_op = self.renderer.as_mut().unwrap().step(vec![sim_state.unwrap()]);
             match render_op {
-                Ok(_) => {
-                    // self.renderer = Some(val);
-                    // return Ok(())
-                },
+                Ok(_) => (),
                 Err(e) => {
                     println!("Unable to do rendering in reset due to error: {e}, attempting to close renderer");
                     let close_op = self.renderer.as_mut().unwrap().close();
                     match close_op {
-                        Ok(_) => {
-                            // self.renderer = Some(val);
-                            // return Ok(())
-                        },
+                        Ok(_) => (),
                         Err(e) => {
                             println!("Unable to close renderer in reset due to error: {e}");
-                            // return Err(e)
                         }
                     }
                 }
@@ -98,7 +91,6 @@ impl Gym {
 
             gym_state
         };
-        // let state = self._game_match.sim_wrapper.set_state(state_wrapper);
 
         self._game_match.episode_reset(&gym_state);
         self._prev_state = gym_state.clone();
@@ -113,24 +105,20 @@ impl Gym {
 
     pub fn step(&mut self, actions: Vec<Vec<f32>>) -> (Vec<Vec<f32>>, Vec<f32>, bool, HashMap<String, f32>) {
         let actions = self._game_match.parse_actions(actions, &self._prev_state);
-        // let act_res = self._send_actions(actions);
 
-        // if !act_res {
-        //     // self.close();
-        //     panic!("closed gym because of action error")
-        // }
-
-        // let state = self._receive_state();
-        // let state = self._game_match.sim_wrapper.step(actions);
         // set the sim state and get the state from the sim
         let gym_state = if self.renderer.is_some() {
-            let (gym_state, sim_state) = self._game_match.sim_wrapper.step(actions, true);
+            let (mut gym_state, sim_state) = self._game_match.sim_wrapper.step(actions, true);
             
             let render_op = self.renderer.as_mut().unwrap().step(sim_state.unwrap());
             match render_op {
-                Ok(_) => {
-                    // self.renderer = Some(val);
-                    // return Ok(())
+                Ok(val) => {
+                    // if this is true then we need to "reset" the gym to the new state
+                    if let Some(val) = val {
+                        // irregular reset process (no state setters from the gym involved basically)
+                        gym_state = self._game_match.sim_wrapper.set_state_sim(val);
+                        self._game_match.episode_reset(&gym_state);
+                    }
                 },
                 Err(e) => {
                     println!("Unable to do rendering in reset due to error: {e}, attempting to close renderer");
