@@ -1,9 +1,10 @@
 use rocketsim_rs::sim::{BallHitInfo, CarControls};
+use serde::{Deserialize, Serialize};
 
 use crate::gamestates::physics_object::PhysicsObject;
 
 /// Struct which holds extra data for agents/players aside from just the PhysicsObjects
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct PlayerData {
     pub car_id: i32,
     pub team_num: i32,
@@ -19,6 +20,7 @@ pub struct PlayerData {
     pub been_bumped: u32,
     pub on_ground: bool,
     pub ball_touched: bool,
+    #[serde(skip)]
     pub ball_info: BallHitInfo,
     pub has_jump: bool,
     pub has_flip: bool,
@@ -26,6 +28,7 @@ pub struct PlayerData {
     pub car_data: PhysicsObject,
     pub inverted_car_data: PhysicsObject,
     pub last_ball_touch_tick: u64,
+    #[serde(skip)]
     pub last_actions: CarControls,
 }
 

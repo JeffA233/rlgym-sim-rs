@@ -3,6 +3,7 @@
 // use rayon::prelude::*;
 
 use rocketsim_rs::sim::{BallHitInfo, CarControls};
+use serde::{Serialize, Deserialize};
 
 use crate::common_values::BLUE_TEAM;
 use crate::gamestates::physics_object::PhysicsObject;
@@ -11,7 +12,7 @@ use crate::gamestates::player_data::PlayerData;
 use super::physics_object::{Position, Velocity};
 
 /// Struct that holds the current state of the game using objects like PhysicsObject and PlayerData
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GameState {
     pub game_type: i32,
     pub blue_score: i32,
@@ -20,7 +21,9 @@ pub struct GameState {
     pub players: Vec<PlayerData>,
     pub ball: PhysicsObject,
     pub inverted_ball: PhysicsObject,
+    #[serde(with = "serde_arrays")]
     pub boost_pads: [f32; 34],
+    #[serde(with = "serde_arrays")]
     pub inverted_boost_pads: [f32; 34],
     pub tick_num: u64,
 }

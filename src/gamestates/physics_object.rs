@@ -1,11 +1,13 @@
 use std::f32::consts::PI;
 use std::ops;
 
+use serde::{Serialize, Deserialize};
+
 // use ndarray::*;
 
 // start of helper structs
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, Serialize, Deserialize)]
 pub struct Position {
     pub x: f32,
     pub y: f32,
@@ -238,7 +240,7 @@ impl From<Velocity> for Position {
     }
 }
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, Serialize, Deserialize)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,
@@ -479,7 +481,7 @@ impl From<Position> for Velocity {
     }
 }
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, Serialize, Deserialize)]
 pub struct Quaternion {
     pub w: f32,
     pub x: f32,
@@ -581,7 +583,7 @@ impl Quaternion {
     }
 }
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, Serialize, Deserialize)]
 pub struct EulerAngle {
     pub pitch: f32,
     pub yaw: f32,
@@ -629,7 +631,7 @@ impl EulerAngle {
     }
 }
 
-#[derive(Default, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct RotationMatrix {
     pub array: [[f32; 3]; 3],
 }
@@ -744,7 +746,7 @@ impl RotationMatrix {
 // start of PhysicsObject struct
 
 /// Struct that holds any kind of physics data for car/ball
-#[derive(Default, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct PhysicsObject {
     pub position: Position,
     pub quaternion: Quaternion,
@@ -838,7 +840,7 @@ impl PhysicsObject {
         self.rotation_mtx
     }
 
-    pub fn serialize(&mut self) -> Vec<f32> {
+    pub fn serialize_to_vec(&mut self) -> Vec<f32> {
         let mut repr = Vec::<f32>::with_capacity(25);
 
         repr.extend(self.position.into_array().iter());
