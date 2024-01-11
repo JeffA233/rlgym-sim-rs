@@ -80,7 +80,7 @@ impl ObsBuilder for AdvancedObs {
         } else {
             inverted = false;
             ball = &state.ball;
-            pads = state.inverted_boost_pads;
+            pads = state.boost_pads;
         }
 
         let pos = &ball.position;
