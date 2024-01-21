@@ -72,7 +72,7 @@ impl ObsBuilder for AdvancedObs {
     fn build_obs(&mut self, player: &PlayerData, state: &GameState, _config: &crate::envs::game_match::GameConfig) -> Vec<f32> {
         let inverted: bool;
         let ball: &PhysicsObject;
-        let pads: [f32; 34];
+        let pads;
         if player.team_num == common_values::ORANGE_TEAM {
             inverted = true;
             ball = &state.inverted_ball;
@@ -100,7 +100,7 @@ impl ObsBuilder for AdvancedObs {
         obs.extend(lin_std);
         obs.extend(ang_std);
         obs.extend(player.last_actions.into_array());
-        obs.extend(pads);
+        obs.extend(pads.iter().map(|pad| pad.state.is_active as i32 as f32));
 
         // self.add_ball_to_stack(pos_std, lin_std, ang_std, player.car_id as usize);
 

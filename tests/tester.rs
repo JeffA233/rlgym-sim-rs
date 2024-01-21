@@ -118,6 +118,7 @@ fn main() {
         terminal_condition: term_cond,
         reward_fn,
         obs_builder: obs_build_vec,
+        use_single_obs: true,
         action_parser: act_parse,
         state_setter: state_set, 
     };
@@ -513,6 +514,7 @@ fn main() {
         terminal_condition: term_cond,
         reward_fn,
         obs_builder: obs_build_vec,
+        use_single_obs: true,
         action_parser: act_parse,
         state_setter: state_set, 
     };

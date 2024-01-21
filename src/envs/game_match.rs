@@ -19,6 +19,7 @@ pub struct GameMatch {
     pub _state_setter: Box<dyn StateSetter>,
     pub agents: usize,
     pub observation_space: Vec<usize>,
+    pub use_single_obs: bool,
     pub action_space: Vec<usize>,
     pub _prev_actions: Vec<Vec<f32>>,
     pub _spectator_ids: Vec<i32>,
@@ -77,22 +78,7 @@ pub struct Stats {
 impl GameMatch {
     pub fn new(
         config: MakeConfig,
-        // reward_function: Box<dyn RewardFn>,
-        // terminal_condition: Box<dyn TerminalCondition>,
-        // obs_builder: Vec<Box<dyn ObsBuilder>>,
-        // action_parser: Box<dyn ActionParser>,
-        // state_setter: Box<dyn StateSetter>,
-        // team_size: Option<usize>,
-        // tick_skip: Option<usize>,
-        // gravity: Option<f32>,
-        // boost_consumption: Option<f32>,
-        // spawn_opponents: Option<bool>,
     ) -> Self {
-        // let team_size = config.game_config.team_size.unwrap_or(1);
-        // let tick_skip = tick_skip.unwrap_or(8);
-        // let gravity = gravity.unwrap_or(1.);
-        // let boost_consumption = boost_consumption.unwrap_or(1.);
-        // let spawn_opponents = spawn_opponents.unwrap_or(true);
         let num_agents = if config.game_config.spawn_opponents { config.game_config.team_size * 2 } else { config.game_config.team_size };
 
         // rocketsim start
@@ -107,10 +93,10 @@ impl GameMatch {
             _state_setter: config.state_setter,
             agents: num_agents,
             observation_space: Vec::<usize>::new(),
+            use_single_obs: config.use_single_obs,
             action_space: Vec::<usize>::new(),
             _prev_actions: vec![vec![0.; 8]; num_agents],
             _spectator_ids: vec![0; 6],
-            // last_touch: -1,
             _initial_score: 0,
             sim_wrapper,
         }
@@ -118,52 +104,40 @@ impl GameMatch {
 
     pub fn episode_reset(&mut self, initial_state: &GameState) {
         self._spectator_ids = initial_state.players.iter().map(|x| x.car_id).collect();
-        // self._prev_actions.fill(vec![0.; 8]);
         self._prev_actions = vec![vec![0.; 8]; self.agents];
         self._terminal_condition.reset(initial_state);
         self._reward_fn.reset(initial_state);
-        self._obs_builder.iter_mut().map(|func| func.reset(initial_state)).for_each(drop);
-        // self._obs_builder.reset(&initial_state);
-        // self.last_touch = -1;
+        if self.use_single_obs {
+            self._obs_builder[0].reset(initial_state);
+        } else {
+            self._obs_builder.iter_mut().map(|func| func.reset(initial_state)).for_each(drop);
+        }
         self._initial_score = initial_state.blue_score - initial_state.orange_score;
     }
 
     pub fn build_observations(&mut self, state: &GameState) -> Vec<Vec<f32>> {
-        let obs_build_len = self._obs_builder.len();
-        let player_len = state.players.len();
-        assert!(obs_build_len >= player_len, "not enough observation builders (len: {obs_build_len}) were provided for the amount of players (len: {player_len})");
-        // if state.last_touch == -1 {
-        //     state.last_touch = self.last_touch.clone();
-        // } else {
-        //     self.last_touch = state.last_touch.clone();
-        // }
+        if !self.use_single_obs {
+            let obs_build_len = self._obs_builder.len();
+            let player_len = state.players.len();
+            assert!(obs_build_len >= player_len, "not enough observation builders (len: {obs_build_len}) were provided for the amount of players (len: {player_len})");
+        }
 
-        // let config_arr = self.get_config();
+        if self.use_single_obs {
+            self._obs_builder[0].pre_step(state, &self.game_config);
 
-        self._obs_builder.iter_mut().map(|func| func.pre_step(state, &self.game_config)).for_each(drop);
-        // self._obs_builder.pre_step(&state);
+            state.players
+            .iter()
+            .map(|player| self._obs_builder[0].build_obs(player, state, &self.game_config))
+            .collect()
+        } else {
+            self._obs_builder.iter_mut().map(|func| func.pre_step(state, &self.game_config)).for_each(drop);
 
-        // for (i, player) in state.players.iter().enumerate() {
-        //     observations.push(self._obs_builder.build_obs(player, &state, &self._prev_actions[i]));
-        // }
-        // self._obs_builder
-        //     .iter_mut()
-        //     .zip(&state.players)
-        //     .zip(&self._prev_actions)
-        //     .map(|((func, player), prev_acts)| func.build_obs(player, state, &self.game_config, prev_acts))
-        //     .collect()
-
-        state.players
+            state.players
             .iter()
             .zip(&mut self._obs_builder)
             .map(|(player, func)| func.build_obs(player, state, &self.game_config))
             .collect()
-
-        // if observations.len() == 1 {
-        //     return observations
-        // } else {
-        //     return observations
-        // }
+        }
     }
 
     pub fn get_rewards(&mut self, state: &GameState, done: bool) -> Vec<f32> {
@@ -209,19 +183,6 @@ impl GameMatch {
         parsed_actions
     }
 
-    // pub fn format_actions(&mut self, actions: Vec<Vec<f64>>) -> Vec<f64> {
-    //     let mut acts = Vec::<f64>::new();
-
-    //     self._prev_actions = actions.clone();
-
-    //     for (spectator_id, mut action) in self._spectator_ids.iter().zip(actions) {
-    //         acts.push(*spectator_id as f64);
-    //         acts.append(&mut action);
-    //     }
-
-    //     return acts
-    // }
-
     pub fn get_reset_state(&mut self, state: &GameState) -> StateWrapper {
         let mut new_state = self._state_setter.build_wrapper(self.game_config.team_size, self.game_config.spawn_opponents, Some(state));
         self._state_setter.reset(&mut new_state);
@@ -233,14 +194,6 @@ impl GameMatch {
     }
 
     pub fn get_config(&self) -> GameConfig {
-        // let spawn_opponents_bool = if self.game_config.spawn_opponents { 1 } else { 0 };
-        // [
-        //     self.game_config.team_size as f32,
-        //     spawn_opponents_bool as f32,
-        //     self.game_config.tick_skip as f32,
-        //     self.game_config.gravity,
-        //     self.game_config.boost_consumption,
-        // ]
         self.game_config
     }
 
@@ -253,7 +206,6 @@ impl GameMatch {
             new_config.team_size
         };
         self.agents = car_count;
-        // self._obs_builder = new_obs_builder.unwrap_or(self._obs_builder);
         if let Some(val) = new_obs_builder { self._obs_builder = val }
         self.sim_wrapper.set_game_config(new_config, false).0
     }

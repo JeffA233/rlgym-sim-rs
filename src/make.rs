@@ -38,6 +38,7 @@ use crate::{
 ///     terminal_condition: Box::new(GoalScoredCondition::new()),
 ///     reward_fn: Box::new(EventReward::new(None, None, None, None, None, None, None, None)),
 ///     obs_builder: vec![Box::new(AdvancedObs::new())],
+///     use_single_obs: true,
 ///     action_parser: Box::new(TestAction::new()),
 ///     state_setter: Box::new(DefaultState::new(None)), 
 /// };
@@ -49,6 +50,7 @@ pub struct MakeConfig {
     pub terminal_condition: Box<dyn TerminalCondition>,
     pub reward_fn: Box<dyn RewardFn>,
     pub obs_builder: Vec<Box<dyn ObsBuilder>>,
+    pub use_single_obs: bool,
     pub action_parser: Box<dyn ActionParser>,
     pub state_setter: Box<dyn StateSetter>, 
 }
@@ -105,6 +107,7 @@ impl Default for RenderConfig {
 ///     terminal_condition: Box::new(GoalScoredCondition::new()),
 ///     reward_fn: Box::new(EventReward::new(None, None, None, None, None, None, None, None)),
 ///     obs_builder: vec![Box::new(AdvancedObs::new())],
+///     use_single_obs: true,
 ///     action_parser: Box::new(TestAction::new()),
 ///     state_setter: Box::new(DefaultState::new(None)), 
 /// };

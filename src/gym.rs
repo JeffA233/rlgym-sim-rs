@@ -47,7 +47,7 @@ impl Gym {
             _game_match: game_match,
             observation_space,
             action_space,
-            _prev_state: GameState::new(None),
+            _prev_state: GameState::new(),
             renderer,
         };
 

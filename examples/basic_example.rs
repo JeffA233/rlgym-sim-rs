@@ -38,6 +38,7 @@ fn main() {
         terminal_condition,
         reward_fn,
         obs_builder,
+        use_single_obs: true,
         action_parser,
         state_setter, 
     };

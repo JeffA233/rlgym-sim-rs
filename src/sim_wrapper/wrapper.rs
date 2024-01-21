@@ -2,7 +2,7 @@ use rocketsim_rs::{
     cxx::UniquePtr,
     math::{RotMat, Vec3},
     sim::{Arena, CarConfig, CarControls, Team},
-    GameState as GameState_sim,
+    GameState as GameState_sim, BoostPad,
 };
 // use std::cell::RefCell;
 use std::{collections::HashMap, sync::RwLock};
@@ -503,11 +503,9 @@ impl RocketsimWrapper {
         players.sort_unstable_by_key(|p| p.car_id);
 
         // TODO: make this just the actual boost pad stats instead of is_active
-        let mut pad_vec = [0.; 34];
+        let mut pad_vec = [BoostPad::default(); 34];
         for (pad, vec_item) in sim_gamestate.pads.iter().zip(&mut pad_vec) {
-            if pad.state.is_active {
-                *vec_item = 1.;
-            }
+            *vec_item = *pad;
         }
         let mut pad_reversed = pad_vec;
         pad_reversed.reverse();
