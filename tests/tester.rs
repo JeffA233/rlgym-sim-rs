@@ -32,6 +32,7 @@ use rlgym_sim_rs::state_setters::default_state::{
 };
 
 use rlgym_sim_rs::obs_builders::obs_builder::ObsBuilder;
+use rocketsim_rs::sim::CarConfig;
 
 pub struct CombinedTerminalConditions {
     timeout_condition: TimeoutCondition,
@@ -107,6 +108,7 @@ fn main() {
         team_size: 1,
         gravity: 1.,
         boost_consumption: 1.,
+        car_config: CarConfig::octane(),
     };
     let game_config = make::MakeConfig {
         game_config: config,
@@ -508,6 +510,7 @@ fn main() {
         team_size: 1,
         gravity: 1.,
         boost_consumption: 1.,
+        car_config: CarConfig::octane(),
     };
     let game_config = make::MakeConfig {
         game_config: config,

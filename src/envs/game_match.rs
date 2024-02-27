@@ -1,3 +1,5 @@
+use rocketsim_rs::sim::CarConfig;
+
 use crate::{
     action_parsers::action_parser::ActionParser,
     conditionals::terminal_condition::TerminalCondition,
@@ -40,6 +42,7 @@ pub struct GameMatch {
 ///         team_size: 1, 
 ///         tick_skip: 8, 
 ///         spawn_opponents: true, 
+///         car_config: CarConfig::octane(),
 ///     }
 /// }
 /// ```
@@ -51,6 +54,7 @@ pub struct GameConfig {
     pub team_size: usize,
     pub tick_skip: usize,
     pub spawn_opponents: bool,
+    pub car_config: &'static CarConfig,
 }
 
 impl Default for GameConfig {
@@ -61,6 +65,7 @@ impl Default for GameConfig {
             team_size: 1, 
             tick_skip: 8, 
             spawn_opponents: true, 
+            car_config: CarConfig::octane(),
         }
     }
 }

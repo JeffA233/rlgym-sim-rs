@@ -8,6 +8,7 @@ use rlgym_sim_rs::obs_builders::advanced_obs::AdvancedObs;
 use rlgym_sim_rs::ObsBuilder;
 use rlgym_sim_rs::reward_functions::common_rewards::misc_rewards::EventReward;
 use rlgym_sim_rs::state_setters::default_state::DefaultState;
+use rocketsim_rs::sim::CarConfig;
 
 
 #[test]
@@ -31,6 +32,7 @@ fn main() {
         team_size: 1,
         gravity: 1.,
         boost_consumption: 1.,
+        car_config: CarConfig::octane(),
     };
 
     let game_config = make::MakeConfig {

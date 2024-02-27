@@ -17,6 +17,7 @@ use rlgym_sim_rs::{
     obs_builders::obs_builder::ObsBuilder,
     state_setters::default_state::DefaultStateTester,
 };
+use rocketsim_rs::sim::CarConfig;
 
 pub struct CombinedTerminalConditions {
     timeout_condition: TimeoutCondition,
@@ -67,6 +68,7 @@ fn main() {
         team_size: 1,
         gravity: 1.,
         boost_consumption: 1.,
+        car_config: CarConfig::octane(),
     };
     // let obs_build: Box<dyn ObsBuilder> = Box::new(AdvancedObs::new());
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
@@ -94,7 +96,7 @@ fn main() {
     assert!(length == 1, "obs was not of correct length for 1v0, was: {length}");
     assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 1v0");
 
-    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: false };
+    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: false, car_config: CarConfig::octane(), };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..2 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));
@@ -108,7 +110,7 @@ fn main() {
     assert!(length == 2, "obs was not of correct length for 2v0, was: {length}");
     assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 2v0");
 
-    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: false };
+    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: false, car_config: CarConfig::octane(), };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..3 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));
@@ -123,7 +125,7 @@ fn main() {
 
     // -- start of self-play=true --
 
-    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 1, tick_skip: 1, spawn_opponents: true };
+    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 1, tick_skip: 1, spawn_opponents: true, car_config: CarConfig::octane(), };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..2 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));
@@ -137,7 +139,7 @@ fn main() {
     assert!(length == 2, "obs was not of correct length for 1v1, was: {length}");
     assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 1v1");
 
-    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: true };
+    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 2, tick_skip: 1, spawn_opponents: true, car_config: CarConfig::octane(), };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..4 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));
@@ -151,7 +153,7 @@ fn main() {
     assert!(length == 4, "obs was not of correct length for 2v2, was: {length}");
     assert!(gym._prev_state.players.iter().all(|player| (player.car_id <= 6 && player.car_id >= 0)), "car ids in state did not work correctly in 2v2");
 
-    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: true };
+    let new_config = GameConfig { gravity: 1., boost_consumption: 1., team_size: 3, tick_skip: 1, spawn_opponents: true, car_config: CarConfig::octane(), };
     let mut obs_build_vec: Vec<Box<dyn ObsBuilder>> = Vec::new();
     for _ in 0..6 {
         obs_build_vec.push(Box::new(AdvancedObs::new()));

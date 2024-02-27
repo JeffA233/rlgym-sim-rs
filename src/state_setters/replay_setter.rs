@@ -87,6 +87,7 @@ impl<'a> StateSetter for ReplaySetter<'a> {
 mod tests{
     use ndarray::Array2;
     use ndarray_npy::write_npy;
+    use rocketsim_rs::sim::CarConfig;
     use crate::sim_wrapper::wrapper::RocketsimWrapper;
     use super::*;
     
@@ -94,7 +95,7 @@ mod tests{
     fn replay_setter_load_threes(){
         rocketsim_rs::init(None);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
-             gravity: 1., boost_consumption: 1., tick_skip: 8};
+             gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
         let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
@@ -107,14 +108,14 @@ mod tests{
         assert_eq!(state.ball.position.x, 2.);
         assert_eq!(state.players[0].car_data.position.x, 3.);
         assert_eq!(state.players[5].boost_amount, 4.);
-        assert!(state.boost_pads.iter().all(|x| *x != 0.));
+        assert!(state.boost_pads.iter().all(|x| x.state.is_active != false));
     }
 
     #[test]
     fn replay_setter_load_ones(){
         rocketsim_rs::init(None);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 1, spawn_opponents: true,
-            gravity: 1., boost_consumption: 1., tick_skip: 8};
+            gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
         let (state, _) = sim.get_rlgym_gamestate(false);
         let pos_ball_0_x = 0;
@@ -151,7 +152,7 @@ mod tests{
     fn replay_setter_random_boost(){
         rocketsim_rs::init(None);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
-             gravity: 1., boost_consumption: 1., tick_skip: 8};
+             gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
         let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
@@ -168,7 +169,7 @@ mod tests{
     fn replay_setter_random_pads(){
         rocketsim_rs::init(None);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
-             gravity: 1., boost_consumption: 1., tick_skip: 8};
+             gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
         let (state, _) = sim.get_rlgym_gamestate(false);
         let array_to_write = make_test_array();
@@ -184,7 +185,7 @@ mod tests{
         }
         let (state, _) = sim.set_state(wrapper, false);
         //it's technically possible for this to fail if all 34 pads roll true, but that seems unlikely, but just try it again
-        assert!(!state.boost_pads.iter().all(|x| *x != 0.));  
+        assert!(!state.boost_pads.iter().all(|x| x.state.is_active != false));  
     }
 
     fn make_test_array() -> ndarray::prelude::ArrayBase<ndarray::OwnedRepr<f32>, ndarray::prelude::Dim<[usize; 2]>> {

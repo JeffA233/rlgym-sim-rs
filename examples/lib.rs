@@ -106,6 +106,7 @@ impl GymWrapper {
             team_size,
             gravity,
             boost_consumption,
+            car_config: CarConfig::octane(),
         };
         let game_config = make::MakeConfig {
             game_config: config,
@@ -186,6 +187,7 @@ impl GymWrapperRust {
             team_size,
             gravity,
             boost_consumption,
+            car_config: CarConfig::octane(),
         };
         let game_config = make::MakeConfig {
             game_config: config,

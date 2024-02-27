@@ -22,6 +22,9 @@ use crate::{
 ///     state_setters::default_state::DefaultState,
 ///     make,
 /// };
+///
+/// use rocketsim_rs::sim::CarConfig;
+///
 /// 
 /// rocketsim_rs::init(None);
 /// 
@@ -31,6 +34,7 @@ use crate::{
 ///     team_size: 1,
 ///     gravity: 1.,
 ///     boost_consumption: 1.,
+///     car_config: CarConfig::octane(),
 /// };
 /// 
 /// let game_config = make::MakeConfig {
@@ -91,6 +95,8 @@ impl Default for RenderConfig {
 ///     state_setters::default_state::DefaultState,
 ///     make,
 /// };
+///
+/// use rocketsim_rs::sim::CarConfig;
 /// 
 /// rocketsim_rs::init(None);
 /// 
@@ -100,6 +106,7 @@ impl Default for RenderConfig {
 ///     team_size: 1,
 ///     gravity: 1.,
 ///     boost_consumption: 1.,
+///     car_config: CarConfig::octane(),
 /// };
 /// 
 /// let game_config = make::MakeConfig {
@@ -115,7 +122,6 @@ impl Default for RenderConfig {
 /// let mut gym = make::make(game_config, None);
 /// ```
 pub fn make(mut config: MakeConfig, render_config: Option<RenderConfig>) -> Gym {
-    // let game_speed = game_config.game_speed.unwrap_or(100.);
     let tick_skip = config.game_config.tick_skip;
     config.game_config.tick_skip = if tick_skip == 0 {
         println!("tick_skip was set to 0, regular RLGym has the same behavior as 1 here");
@@ -126,17 +132,9 @@ pub fn make(mut config: MakeConfig, render_config: Option<RenderConfig>) -> Gym 
     } else {
         tick_skip
     };
-    // let spawn_opponents = config.spawn_opponents.unwrap_or(true);
-    // let team_size = config.team_size.unwrap_or(1);
-    // let gravity = config.gravity.unwrap_or(1.);
-    // let boost_consumption = config.boost_consumption.unwrap_or(1.);
+
     let game_match = GameMatch::new(
         config,
-        // Some(team_size),
-        // Some(tick_skip),
-        // Some(gravity),
-        // Some(boost_consumption),
-        // Some(spawn_opponents),
     );
 
     Gym::new(game_match, render_config.unwrap_or_default())

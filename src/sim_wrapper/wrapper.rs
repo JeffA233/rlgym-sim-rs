@@ -41,6 +41,7 @@ pub struct RocketsimWrapper {
     arena: UniquePtr<Arena>,
     car_ids: Vec<u32>,
     tick_skip: usize,
+    car_config: &'static CarConfig,
     // blue_score: i32,
     // orange_score: i32,
     jump_timer: f32,
@@ -75,14 +76,14 @@ impl RocketsimWrapper {
             let mut i = 1;
             // spawn blue cars
             for _ in 0..config.team_size {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
             }
             // spawn orange cars
             for _ in 0..config.team_size {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::ORANGE, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
@@ -91,7 +92,7 @@ impl RocketsimWrapper {
             let mut i = 1;
             // spawn blue cars
             for _ in 0..config.team_size as u32 {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
@@ -241,6 +242,7 @@ impl RocketsimWrapper {
             arena: rocket_sim_instance,
             car_ids,
             tick_skip: config.tick_skip,
+            car_config: config.car_config,
             jump_timer: 1.25,
             prev_touched_ticks: HashMap::new(),
             car_id_map,
@@ -550,7 +552,11 @@ impl RocketsimWrapper {
         let car_count_blue = new_config.team_size;
         let car_count_orange = if new_config.spawn_opponents {new_config.team_size} else {0};
 
-        if car_blue != car_count_blue || car_orange != car_count_orange {
+        // NOTE: need to check if the old car and new car settings are the same, sadly don't think we can check via if the reference points to the same thing?
+        let new_hitbox_size = new_config.car_config.hitbox_size;
+        let old_hitbox_size = self.car_config.hitbox_size;
+
+        if car_blue != car_count_blue || car_orange != car_count_orange || new_hitbox_size == old_hitbox_size {
             for car_id in car_ids.iter() {
                 let err = self.arena.pin_mut().remove_car(*car_id);
                 match err {
@@ -567,14 +573,14 @@ impl RocketsimWrapper {
                 let mut i = 1;
                 // spawn blue cars
                 for _ in 0..new_config.team_size {
-                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
                 }
                 // spawn orange cars
                 for _ in 0..new_config.team_size {
-                    let car_id = self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane());
+                    let car_id = self.arena.pin_mut().add_car(Team::ORANGE, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
@@ -583,7 +589,7 @@ impl RocketsimWrapper {
                 let mut i = 1;
                 // spawn blue cars
                 for _ in 0..new_config.team_size as u32 {
-                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane());
+                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
@@ -628,6 +634,7 @@ impl RocketsimWrapper {
 
         self.car_ids = car_ids;
         self.tick_skip = new_config.tick_skip;
+        self.car_config = new_config.car_config;
 
         self.get_rlgym_gamestate(get_sim_state)
     }
