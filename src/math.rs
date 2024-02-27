@@ -302,7 +302,13 @@ pub fn rand_vec3(max_norm: f32, rng: &mut SmallRng) -> Vec<f32> {
     for i in res.iter_mut() {
         let rand_num = rng.gen::<f32>();
         let partial = rand_num * max_norm;
-        *i *= partial;
+        *i = partial;
+    }
+    // get norm
+    let norm: f32 = res.iter().map(|&x| x * x).sum::<f32>().sqrt();
+    // Normalize to the max_norm
+    for i in &mut res {
+        *i *= max_norm / norm;
     }
     res
 }
