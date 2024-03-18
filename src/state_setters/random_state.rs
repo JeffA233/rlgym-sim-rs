@@ -86,7 +86,7 @@ impl RandomState {
                 car.set_lin_vel(Some(lin_vel[0]), Some(lin_vel[1]), Some(lin_vel[2]));
                 car.set_ang_vel(Some(ang_vel[0]), Some(ang_vel[1]), Some(ang_vel[2]));
             } else {
-                car.set_lin_vel(Some(0.), Some(0.), Some(0.));
+                car.set_lin_vel(Some(0.), Some(0.), Some(1.));
                 car.set_ang_vel(Some(0.), Some(0.), Some(0.));
             }
 
