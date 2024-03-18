@@ -57,6 +57,9 @@ impl RandomState {
             let ang_vel = rand_vec3(6., &mut self.rng);
             state_wrapper.ball.set_lin_vel(Some(lin_vel[0]), Some(lin_vel[1]), Some(lin_vel[2]));
             state_wrapper.ball.set_ang_vel(Some(ang_vel[0]), Some(ang_vel[1]), Some(ang_vel[2]));
+        } else {
+            state_wrapper.ball.set_lin_vel(Some(0.), Some(0.), Some(0.));
+            state_wrapper.ball.set_ang_vel(Some(0.), Some(0.), Some(0.));
         }
     }
 
@@ -82,6 +85,9 @@ impl RandomState {
                 let ang_vel = rand_vec3(5.5, &mut self.rng);
                 car.set_lin_vel(Some(lin_vel[0]), Some(lin_vel[1]), Some(lin_vel[2]));
                 car.set_ang_vel(Some(ang_vel[0]), Some(ang_vel[1]), Some(ang_vel[2]));
+            } else {
+                car.set_lin_vel(Some(0.), Some(0.), Some(0.));
+                car.set_ang_vel(Some(0.), Some(0.), Some(0.));
             }
 
             if on_ground || self.rng.gen::<f32>() < 0.5 {
