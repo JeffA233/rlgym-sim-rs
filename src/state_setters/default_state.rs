@@ -76,7 +76,7 @@ impl StateSetter for DefaultState {
             car.set_pos(Some(pos[0]), Some(pos[1]), Some(pos[2]));
             car.set_lin_vel(Some(0.), Some(0.), Some(0.));
             car.set_ang_vel(Some(0.), Some(0.), Some(0.));
-            car.set_rot(None, Some(yaw), None);
+            car.set_rot(Some(0.), Some(yaw), Some(0.));
             car.boost = 0.33;
         }
 
