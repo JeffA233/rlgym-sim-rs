@@ -52,6 +52,10 @@ impl RandomState {
             Some(self.rng.gen::<f32>() * Y_MAX - Y_MAX / 2.),
             Some(self.rng.gen::<f32>() * Z_MAX_BALL + 100.),
         );
+        // Z lower bound check
+        if state_wrapper.ball.position.z < 94. {
+            state_wrapper.ball.position.z = 94.
+        }
         if random_speed {
             let lin_vel = rand_vec3(3000., &mut self.rng);
             let ang_vel = rand_vec3(6., &mut self.rng);
@@ -72,6 +76,11 @@ impl RandomState {
                 Some(self.rng.gen::<f32>() * Y_MAX - Y_MAX / 2.),
                 Some(self.rng.gen::<f32>() * Z_MAX_CAR + 150.),
             );
+            // Z lower bound check
+            if car.position.z < 100. {
+                car.position.z = 100.;
+            }
+
             car.set_rot(
                 Some(self.rng.gen::<f32>() * PITCH_MAX - PITCH_MAX / 2.),
                 Some(self.rng.gen::<f32>() * YAW_MAX - YAW_MAX / 2.),
