@@ -51,7 +51,7 @@ impl TerminalCondition for CombinedTerminalConditions {
 
 
 #[test]
-fn main() {
+fn team_change_test() {
     // let obs = vec![vec![93, 93, 93], vec![92, 93, 93], vec![91, 93, 93]];
     // let mut vec = Vec::<Vec<i32>>::new();
     // vec.extend(obs);

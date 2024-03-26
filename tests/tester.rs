@@ -66,7 +66,7 @@ impl TerminalCondition for CombinedTerminalConditions {
 
 
 #[test]
-fn main() {
+fn general_test() {
     // let v = vec![93.0];
     // let bytes = f32vec_as_u8_slice(&v);
     // let mut rot_mtx = RotationMatrix::zeros();
