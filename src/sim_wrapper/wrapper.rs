@@ -1,8 +1,5 @@
 use rocketsim_rs::{
-    cxx::UniquePtr,
-    math::{RotMat, Vec3},
-    sim::{Arena, CarConfig, CarControls, Team},
-    GameState as GameState_sim, BoostPad,
+    cxx::UniquePtr, math::{RotMat, Vec3}, sim::{Arena, BallState, CarConfig, CarControls, CarState, Team}, BoostPad, GameState as GameState_sim
 };
 // use std::cell::RefCell;
 use std::{collections::HashMap, sync::RwLock};
@@ -255,15 +252,9 @@ impl RocketsimWrapper {
         // reset boost pads
         for (i, pad) in sim_state.pads.iter_mut().enumerate() {
             pad.state = state_wrapper.pads[i];
-            // pad.state.cooldown = 0.;
         };
 
         // cars
-
-        // if we need to go from rlgym id to rocketsim id
-        // let mut reverse_id_map = HashMap::new();
-        // self.car_id_map.iter().for_each(|(k, v)| {reverse_id_map.insert(*v, *k);});
-        //
         for car_info in sim_state.cars.iter_mut() {
             // find the rocketsim car with the correct id
             let rlgym_id = *self.car_id_map.get(&(car_info.id)).unwrap();
@@ -281,6 +272,9 @@ impl RocketsimWrapper {
             //     }
             // };
             //
+            
+            // reset the state in order to reset demo, flip timers, etc.
+            car_info.state = CarState::default();
 
             car_info.state.pos = Vec3::new(car_wrapper.position.x, car_wrapper.position.y, car_wrapper.position.z);
             car_info.state.vel = Vec3::new(car_wrapper.linear_velocity.x, car_wrapper.linear_velocity.y, car_wrapper.linear_velocity.z);
@@ -303,6 +297,9 @@ impl RocketsimWrapper {
         }
 
         // ball
+        // reset ball state
+        sim_state.ball = BallState::default();
+
         sim_state.ball.pos = Vec3::new(state_wrapper.ball.position.x, state_wrapper.ball.position.y, state_wrapper.ball.position.z);
         sim_state.ball.vel = Vec3::new(
             state_wrapper.ball.linear_velocity.x,
