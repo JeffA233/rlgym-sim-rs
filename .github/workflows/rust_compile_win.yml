@@ -15,10 +15,6 @@ jobs:
     timeout-minutes: 25
     steps:
     - uses: actions/checkout@v4
-    - uses: TheMrMilchmann/setup-msvc-dev@v3
-      with:
-        arch: x64
-        toolset: 17.6
     - run: rustup toolchain install stable --profile minimal
     - uses: Swatinem/rust-cache@v2.6.2
     - name: Decrypt meshes
