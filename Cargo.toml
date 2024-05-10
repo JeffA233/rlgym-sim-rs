@@ -17,22 +17,14 @@ crate-type = ["cdylib", "rlib"]
 # doctest = false
 
 [dependencies]
-# pyo3 = {version = "0.19.0"}
 ndarray = { version = "0.15.6"}
-# numpy = { version = "0.19.0"}
 rand = { version = "0.8.5", features=["small_rng"]}
-# serde_json = { version = "1.0.104"}
-# fs2 = { version = "0.4.3"}
-zip = { version = "0.6.4"}
-# crossbeam-channel = { version = "0.5.8"}
-# itertools = { version = "0.11.0"}
-rocketsim_rs = {version = "0.24.3", features=["bin", "serde_utils"]}
-# rustc-hash = {version = "1.1.0"}
-memmap2 = {version = "0.9.0"}
+zip = { version = "1.2.2"}
+rocketsim_rs = {version = "0.28.1", features=["bin", "serde_utils"]}
+memmap2 = {version = "0.9.4"}
 ndarray-npy = {version = "0.8.1"}
-serde = {version = "1.0.195", features = ["derive"]}
+serde = {version = "1.0.201", features = ["derive"]}
 serde_arrays = {version = "0.1.0"}
-# ctrlc = {version = "3.3.1"}
 
 # [build]
 # target = "x86_64-pc-windows-gnu"
