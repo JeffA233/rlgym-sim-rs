@@ -1,3 +1,5 @@
+[![Windows build & test](https://github.com/JeffA233/rlgym-sim-rs/actions/workflows/rust_compile_win.yml/badge.svg)](https://github.com/JeffA233/rlgym-sim-rs/actions/workflows/rust_compile_win.yml) [![Linux build & test](https://github.com/JeffA233/rlgym-sim-rs/actions/workflows/rust_compile_linux.yml/badge.svg)](https://github.com/JeffA233/rlgym-sim-rs/actions/workflows/rust_compile_linux.yml)
+ 
 # rlgym-sim-rs
 Initial release of Rust RLGym for sim. More documentation soon.
 
