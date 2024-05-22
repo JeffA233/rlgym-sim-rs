@@ -73,14 +73,14 @@ impl RocketsimWrapper {
             let mut i = 1;
             // spawn blue cars
             for _ in 0..config.team_size {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, config.car_config);
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::Blue, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
             }
             // spawn orange cars
             for _ in 0..config.team_size {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::ORANGE, config.car_config);
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::Orange, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
@@ -89,7 +89,7 @@ impl RocketsimWrapper {
             let mut i = 1;
             // spawn blue cars
             for _ in 0..config.team_size as u32 {
-                let car_id = rocket_sim_instance.pin_mut().add_car(Team::BLUE, config.car_config);
+                let car_id = rocket_sim_instance.pin_mut().add_car(Team::Blue, config.car_config);
                 car_id_map.insert(car_id, i);
                 car_ids.push(car_id);
                 i += 1;
@@ -121,7 +121,7 @@ impl RocketsimWrapper {
                     return;
                 }
 
-                if team == Team::BLUE {
+                if team == Team::Blue {
                     Self::BLUE_SCORE.with(|val| *val.write().unwrap() += 1);
                 } else {
                     Self::ORANGE_SCORE.with(|val| *val.write().unwrap() += 1);
@@ -152,10 +152,10 @@ impl RocketsimWrapper {
 
                 // Sort ball touches by team
                 let ball_touches = [
-                    all_ball_touches.iter().filter(|(_, team, _)| *team == Team::BLUE).map(|(id, _, _)| *id).collect::<Vec<_>>(),
+                    all_ball_touches.iter().filter(|(_, team, _)| *team == Team::Blue).map(|(id, _, _)| *id).collect::<Vec<_>>(),
                     all_ball_touches
                         .iter()
-                        .filter(|(_, team, _)| *team == Team::ORANGE)
+                        .filter(|(_, team, _)| *team == Team::Orange)
                         .map(|(id, _, _)| *id)
                         .collect::<Vec<_>>(),
                 ];
@@ -469,7 +469,7 @@ impl RocketsimWrapper {
             
             let player = PlayerData {
                 car_id: car_id as i32,
-                team_num: if car_info.team == Team::BLUE { BLUE_TEAM } else { ORANGE_TEAM },
+                team_num: if car_info.team == Team::Blue { BLUE_TEAM } else { ORANGE_TEAM },
                 match_goals: (orange_score + blue_score) as i64,
                 // TODO: adapt PlayerData struct to structs that represent better RocketSim data
                 match_saves: stats.saves as i64,
@@ -533,7 +533,7 @@ impl RocketsimWrapper {
         let mut car_orange = 0;
         for car_id in car_ids.iter() {
             let team = self.arena.get_car_team(*car_id);
-            if team == Team::ORANGE {
+            if team == Team::Orange {
                 car_orange += 1;
             } else {
                 car_blue += 1;
@@ -570,14 +570,14 @@ impl RocketsimWrapper {
                 let mut i = 1;
                 // spawn blue cars
                 for _ in 0..new_config.team_size {
-                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, new_config.car_config);
+                    let car_id = self.arena.pin_mut().add_car(Team::Blue, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
                 }
                 // spawn orange cars
                 for _ in 0..new_config.team_size {
-                    let car_id = self.arena.pin_mut().add_car(Team::ORANGE, new_config.car_config);
+                    let car_id = self.arena.pin_mut().add_car(Team::Orange, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
@@ -586,7 +586,7 @@ impl RocketsimWrapper {
                 let mut i = 1;
                 // spawn blue cars
                 for _ in 0..new_config.team_size as u32 {
-                    let car_id = self.arena.pin_mut().add_car(Team::BLUE, new_config.car_config);
+                    let car_id = self.arena.pin_mut().add_car(Team::Blue, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
                     car_ids.push(car_id);
                     i += 1;
@@ -605,16 +605,16 @@ impl RocketsimWrapper {
         // if new_config.spawn_opponents {
         //     // spawn blue cars
         //     for _ in 0..new_config.team_size {
-        //         car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::Blue, CarConfig::octane()));
         //     }
         //     // spawn orange cars
         //     for _ in 0..new_config.team_size {
-        //         car_ids.push(self.arena.pin_mut().add_car(Team::ORANGE, CarConfig::octane()));
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::Orange, CarConfig::octane()));
         //     }
         // } else {
         //     // spawn blue cars
         //     for _ in 0..new_config.team_size {
-        //         car_ids.push(self.arena.pin_mut().add_car(Team::BLUE, CarConfig::octane()));
+        //         car_ids.push(self.arena.pin_mut().add_car(Team::Blue, CarConfig::octane()));
         //     }
         // }
 
@@ -691,7 +691,7 @@ impl RocketsimWrapper {
             (gamestate_rlgym, Some(gamestate_sim_vec))
         } else {
             if self.tick_skip > 1 {
-                self.arena.pin_mut().step(self.tick_skip as i32 - 1);
+                self.arena.pin_mut().step((self.tick_skip - 1) as u32);
             }
 
             (gamestate_rlgym, None)
