@@ -639,6 +639,8 @@ impl RocketsimWrapper {
         self.tick_skip = new_config.tick_skip;
         self.car_config = new_config.car_config;
 
+        self.on_ground_vec = vec![false; self.car_ids.len()];
+
         self.get_rlgym_gamestate(get_sim_state)
     }
 
