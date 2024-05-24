@@ -44,6 +44,7 @@ pub struct RocketsimWrapper {
     jump_timer: f32,
     prev_touched_ticks: HashMap<u32, u64>,
     car_id_map: HashMap<u32, i32>,
+    on_ground_vec: Vec<bool>,
 }
 
 impl RocketsimWrapper {
@@ -95,6 +96,10 @@ impl RocketsimWrapper {
                 i += 1;
             }
         }
+
+        // init on_ground array
+        let num_cars = if config.spawn_opponents { config.team_size * 2 } else { config.team_size };
+        let on_ground_vec = vec![false; num_cars];
 
         // init stats
         Self::STATS.with(|stats| {
@@ -243,6 +248,7 @@ impl RocketsimWrapper {
             jump_timer: 1.25,
             prev_touched_ticks: HashMap::new(),
             car_id_map,
+            on_ground_vec,
         }
     }
 
@@ -646,6 +652,17 @@ impl RocketsimWrapper {
         // self.decode_gamestate(&rlsim_gamestate)
     }
 
+    fn check_on_ground(&mut self) {
+        let new_iter = self.arena
+        .get_cars()
+        .into_iter()
+        .map(|id| self.arena.pin_mut().get_car(id).is_on_ground);
+
+        for (on_ground_arr, on_ground_new) in self.on_ground_vec.iter_mut().zip(new_iter) {
+            *on_ground_arr = *on_ground_arr || on_ground_new;
+        }
+    }
+
     /// clone actions before this to set prev_acts
     pub fn step(&mut self, actions: Vec<Vec<f32>>, get_sim_state: bool) -> (GameState_rlgym, Option<Vec<GameState_sim>>) {
         let mut acts = Vec::<(u32, CarControls)>::new();
@@ -669,7 +686,11 @@ impl RocketsimWrapper {
 
         self.arena.pin_mut().set_all_controls(&acts).unwrap();
 
+        self.on_ground_vec.fill(false);
+
         self.arena.pin_mut().step(1);
+
+        self.check_on_ground();
 
         let (gamestate_rlgym, gamestate_sim) = self.get_rlgym_gamestate(get_sim_state);
 
@@ -684,6 +705,7 @@ impl RocketsimWrapper {
             if self.tick_skip > 1 {
                 for _ in 0..self.tick_skip-1 {
                     self.arena.pin_mut().step(1);
+                    self.check_on_ground();
                     gamestate_sim_vec.push(self.arena.pin_mut().get_game_state());
                 }
             }
@@ -691,7 +713,10 @@ impl RocketsimWrapper {
             (gamestate_rlgym, Some(gamestate_sim_vec))
         } else {
             if self.tick_skip > 1 {
-                self.arena.pin_mut().step((self.tick_skip - 1) as u32);
+                for _ in 0..self.tick_skip-1 {
+                    self.arena.pin_mut().step(1);
+                    self.check_on_ground();
+                }
             }
 
             (gamestate_rlgym, None)
