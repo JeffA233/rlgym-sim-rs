@@ -487,7 +487,7 @@ impl RocketsimWrapper {
                 last_bumpee: car_bumpee_id as u32,
                 bumps: stats.bumps_count,
                 been_bumped: stats.bumped_count,
-                on_ground: *on_ground_car,
+                on_ground: *on_ground_car || car.is_on_ground,
                 // ball_touched: if self.prev_touched_ticks != car.ball_hit_info.tick_count_when_hit && !car.ball_hit_info.is_valid { self.prev_touched_ticks = car.ball_hit_info.tick_count_when_hit; true } else { false },
                 ball_touched: if car.ball_hit_info.is_valid {
                     prev_touched_tick != car.ball_hit_info.tick_count_when_hit
