@@ -49,10 +49,10 @@ pub struct RocketsimWrapper {
 
 impl RocketsimWrapper {
     thread_local!(
-        static BLUE_SCORE: RwLock<i32> = RwLock::new(0);
-        static ORANGE_SCORE: RwLock<i32> = RwLock::new(0);
-        static LAST_GOAL_TICK: RwLock<u64> = RwLock::new(0);
-        static STATS: RwLock<Vec<(u32, Stats)>> = RwLock::new(Vec::new());
+        static BLUE_SCORE: RwLock<i32> = const { RwLock::new(0) };
+        static ORANGE_SCORE: RwLock<i32> = const { RwLock::new(0) };
+        static LAST_GOAL_TICK: RwLock<u64> = const { RwLock::new(0) };
+        static STATS: RwLock<Vec<(u32, Stats)>> = const { RwLock::new(Vec::new()) };
     );
 
     pub fn new(config: GameConfig) -> Self {
