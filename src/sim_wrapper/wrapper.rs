@@ -374,7 +374,7 @@ impl RocketsimWrapper {
         let orange_score = Self::ORANGE_SCORE.with(|val| *val.read().unwrap());
         let blue_score = Self::BLUE_SCORE.with(|val| *val.read().unwrap());
 
-        for car_info in &sim_gamestate.cars {
+        for (car_info, on_ground_car) in sim_gamestate.cars.iter().zip(&self.on_ground_vec) {
             let car = car_info.state;
 
             let mut car_data = PhysicsObject::new();
@@ -487,7 +487,7 @@ impl RocketsimWrapper {
                 last_bumpee: car_bumpee_id as u32,
                 bumps: stats.bumps_count,
                 been_bumped: stats.bumped_count,
-                on_ground: car.is_on_ground,
+                on_ground: *on_ground_car,
                 // ball_touched: if self.prev_touched_ticks != car.ball_hit_info.tick_count_when_hit && !car.ball_hit_info.is_valid { self.prev_touched_ticks = car.ball_hit_info.tick_count_when_hit; true } else { false },
                 ball_touched: if car.ball_hit_info.is_valid {
                     prev_touched_tick != car.ball_hit_info.tick_count_when_hit
