@@ -49,10 +49,9 @@ impl From<u8> for UdpPacketTypes {
 pub struct Renderer {
     socket: UdpSocket,
     interval: Duration,
-    // tick_skip_interval: Duration,
-    min_buf: [u8; 1316],
+    // NOTE: 2911 for 3v3, 1316 for 1v1, not sure if it matters really
+    min_buf: [u8; 65536],
     next_time: Instant,
-    // next_time_tick_skip: Instant,
     // ctrlc_recv: Receiver<()>,
     sock_addr: SocketAddr,
     pause: bool,
@@ -63,7 +62,6 @@ const RLVISER_PATH: &str = if cfg!(windows) { "./rlviser.exe" } else { "./rlvise
 impl Renderer {
     pub fn new(
         render_config: RenderConfig, 
-        // tick_skip: usize
     ) -> Result<Self, io::Error> {
         let socket_op = UdpSocket::bind("0.0.0.0:34254");
         // print the socket address
@@ -188,19 +186,15 @@ impl Renderer {
 
         // set the update rate for the rendering
         let interval = Duration::from_secs_f32(1. / render_config.update_rate);
-        // let tick_skip_interval = Duration::from_secs_f32(1. / (render_config.update_rate / tick_skip as f32));
         let next_time = Instant::now() + interval;
-        // let next_time_tick_skip = Instant::now() + tick_skip_interval;
-        let min_state_set_buf = [0; 1316];
+        let min_state_set_buf = [0; 65536];
 
         let mut inst =             
         Self {
             socket,
             interval,
-            // tick_skip_interval,
             min_buf: min_state_set_buf,
             next_time,
-            // next_time_tick_skip,
             // ctrlc_recv: receiver,
             sock_addr: src,
             pause: false,
@@ -232,7 +226,6 @@ impl Renderer {
         //     return Ok(())
         // }
 
-        // let states_len = states.len();
         let mut state_set_data = None;
         for state in states.into_iter() {
             // this is more just to handle if anything gets sent back
