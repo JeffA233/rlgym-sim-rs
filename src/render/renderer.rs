@@ -11,7 +11,7 @@ use std::{
 use rocketsim_rs::{
     bytes::{
         // FromBytes, 
-        ToBytes, FromBytes
+        ToBytes, FromBytes, FromBytesExact
     },
     // cxx::UniquePtr,
     // math::Vec3,
@@ -22,20 +22,40 @@ use rocketsim_rs::{
 use crate::make::RenderConfig;
 
 #[repr(u8)]
+#[derive(Debug, Clone, Copy)]
 enum UdpPacketTypes {
     Quit,
     GameState,
+    Connection,
+    Paused,
+    Speed,
+    Render,
+}
+
+impl From<u8> for UdpPacketTypes {
+    fn from(val: u8) -> Self {
+        match val {
+            0 => Self::Quit,
+            1 => Self::GameState,
+            2 => Self::Connection,
+            3 => Self::Paused,
+            4 => Self::Speed,
+            5 => Self::Render,
+            _ => panic!("Invalid packet type"),
+        }
+    }
 }
 
 pub struct Renderer {
     socket: UdpSocket,
     interval: Duration,
     // tick_skip_interval: Duration,
-    min_buf: [u8; GameState_sim::MIN_NUM_BYTES],
+    min_buf: [u8; 1316],
     next_time: Instant,
     // next_time_tick_skip: Instant,
     // ctrlc_recv: Receiver<()>,
     sock_addr: SocketAddr,
+    pause: bool,
 }
 
 const RLVISER_PATH: &str = if cfg!(windows) { "./rlviser.exe" } else { "./rlviser" };
@@ -66,21 +86,6 @@ impl Renderer {
             }
         };
 
-        // println!("Listening on {}", socket.local_addr()?);
-    
-        // Load rocketsim
-        // rocketsim_rs::init(None);
-    
-        // let mut args = std::env::args();
-        // let _ = args.next();
-        // let arena_type = match args.next().as_deref() {
-        //     Some("hoops") => GameMode::HOOPS,
-        //     _ => GameMode::SOCCAR,
-        // };
-        // let arena_type = GameMode::SOCCAR;
-    
-        // run_socket(socket, arena_type)
-
         if let Err(e) = Command::new(RLVISER_PATH).spawn() {
             println!("Failed to launch RLViser ({RLVISER_PATH}): {e}");
         }
@@ -105,7 +110,7 @@ impl Renderer {
             }
         };
 
-        if buf[0] == 1 {
+        if buf[0] == 2 {
             println!("Renderer connection established to {src}");
         }
 
@@ -119,6 +124,15 @@ impl Renderer {
         match res {
             Ok(val) => val,
             Err(e) => println!("Could not set to nonblocking, err: {e}, continuing"),
+        };
+
+        let res = socket.send_to(&[UdpPacketTypes::Connection as u8], src);
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not send connection packet, err: {e}, stopping rendering"); 
+                return Err(e)
+            },
         };
 
         // let (sender, receiver) = channel();
@@ -139,25 +153,69 @@ impl Renderer {
         //     }
         // };
 
+        let step_speed = render_config.update_rate / 120.;
+        let step_speed_f_bytes = step_speed.to_le_bytes();
+        let res = socket.send_to(&[UdpPacketTypes::Speed as u8], src);
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not send speed packet, err: {e}, continuing"); 
+            },
+        };
+        let res = socket.send_to(&step_speed_f_bytes, src);
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not send speed packet float, err: {e}, continuing"); 
+            },
+        };
+
+        let paused = [UdpPacketTypes::Paused as u8];
+        let res = socket.send_to(&paused, src);
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not send pause packet, err: {e}, continuing"); 
+            },
+        };
+        let res = socket.send_to(&[0], src);
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not send pause u8, err: {e}, continuing"); 
+            },
+        };
+
         // set the update rate for the rendering
         let interval = Duration::from_secs_f32(1. / render_config.update_rate);
         // let tick_skip_interval = Duration::from_secs_f32(1. / (render_config.update_rate / tick_skip as f32));
         let next_time = Instant::now() + interval;
         // let next_time_tick_skip = Instant::now() + tick_skip_interval;
-        let min_state_set_buf = [0; GameState_sim::MIN_NUM_BYTES];
+        let min_state_set_buf = [0; 1316];
 
-        Ok(
-            Self {
-                socket,
-                interval,
-                // tick_skip_interval,
-                min_buf: min_state_set_buf,
-                next_time,
-                // next_time_tick_skip,
-                // ctrlc_recv: receiver,
-                sock_addr: src,
+        let mut inst =             
+        Self {
+            socket,
+            interval,
+            // tick_skip_interval,
+            min_buf: min_state_set_buf,
+            next_time,
+            // next_time_tick_skip,
+            // ctrlc_recv: receiver,
+            sock_addr: src,
+            pause: false,
+        };
+
+        let res = inst.handle_ret_msg_init();
+        match res {
+            Ok(_) => (),
+            Err(e) => {
+                println!("Could not receive message from rlviser, err: {e}");
+                return Err(e)
             }
-        )
+        };
+
+        Ok(inst)
     }
 
     pub fn step(&mut self, states: Vec<GameState_sim>) -> io::Result<Option<GameState_sim>> {
@@ -175,17 +233,13 @@ impl Renderer {
         // }
 
         // let states_len = states.len();
-        let mut state_set_bool = false;
+        let mut state_set_data = None;
         for state in states.into_iter() {
             // this is more just to handle if anything gets sent back
-            let res = Renderer::handle_state_set(&mut self.min_buf, &self.socket);
+            let res = self.handle_ret_msg();
             match res {
                 Ok(val) => {
-                    // if we received a state
-                    if val {
-                        state_set_bool = true;
-                        break
-                    }
+                    state_set_data = val
                 },
                 Err(e) => {
                     println!("Could not receive state signal from rlviser, err: {e}");
@@ -212,32 +266,38 @@ impl Renderer {
                     return Err(e)
                 }
             };
-    
-            // ensure correct time to wait with interval
-            // if i == states_len-1 {
-            //     let wait_time = self.next_time - Instant::now();
-            //     if wait_time > Duration::default() {
-            //         sleep(wait_time);
-            //     }
-            //     self.next_time += self.interval + self.tick_skip_interval;
-            // } else {
-                let wait_time = self.next_time - Instant::now();
-                if wait_time > Duration::default() {
-                    sleep(wait_time);
+
+            // sleep timer for tps
+            let wait_time = self.next_time - Instant::now();
+            if wait_time > Duration::default() {
+                sleep(wait_time);
+            }
+            self.next_time += self.interval;
+        }
+
+        while self.pause {
+            // reuse sleep timer to handle waiting for pause/unpause
+            let wait_time = self.next_time - Instant::now();
+            if wait_time > Duration::default() {
+                sleep(wait_time);
+            }
+            // slightly more robust potentially in case of delays (probably unnecessary)
+            self.next_time = Instant::now() + Duration::from_secs_f32(0.05);
+            
+            let res = self.handle_ret_msg();
+            match res {
+                Ok(val) => {
+                    state_set_data = val
+                },
+                Err(e) => {
+                    println!("Could not receive state signal from rlviser, err: {e}");
+                    return Err(e)
                 }
-                self.next_time += self.interval;
-            // }
+            };
         }
-
-        if state_set_bool {
-            return Ok(Some(GameState_sim::from_bytes(&self.min_buf)))
+        if let Some(data) = state_set_data {
+            return Ok(Some(GameState_sim::from_bytes(&data)))
         }
-
-        // let wait_time = self.next_time_tick_skip - Instant::now();
-        // if wait_time > Duration::default() {
-        //     sleep(wait_time);
-        // }
-        // self.next_time_tick_skip += self.tick_skip_interval;
 
         Ok(None)
     }
@@ -255,31 +315,122 @@ impl Renderer {
         Ok(())
     }
 
-    fn handle_state_set(
-        min_state_set_buf: &mut [u8; GameState_sim::MIN_NUM_BYTES],
-        socket: &UdpSocket,
-        // arena: &mut UniquePtr<Arena>,
+    // fn handle_state_set(
+    //     min_state_set_buf: &mut [u8; GameState_sim::MIN_NUM_BYTES],
+    //     socket: &UdpSocket,
+    //     // arena: &mut UniquePtr<Arena>,
+    // ) -> io::Result<bool> {
+    //     let mut state_set_buf = Vec::new();
+    
+    //     while socket.peek_from(min_state_set_buf).is_ok() {
+    //         // the socket sent data back
+    //         // this is the other side telling us to update the game state
+    //         let num_bytes = GameState_sim::get_num_bytes(min_state_set_buf);
+    //         state_set_buf = vec![0; num_bytes];
+    //         socket.recv_from(&mut state_set_buf)?;
+    //     }
+    
+    //     // the socket didn't send data back
+    //     if state_set_buf.is_empty() {
+    //         return Ok(false);
+    //     }
+    
+    //     // set the game state
+    //     // let game_state = GameState_sim::from_bytes(&state_set_buf);
+    //     // if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
+    //     //     println!("Error setting game state: {e}");
+    //     // };
+    
+    //     Ok(true)
+    // }
+
+    fn handle_ret_msg(
+        &mut self,
+    ) -> io::Result<Option<Vec<u8>>> {
+        let mut state_set_buf = Vec::new();
+    
+        let mut byte_buffer = [0];
+
+        while let Ok((_, src)) = self.socket.recv_from(&mut byte_buffer) {
+            let packet_type = UdpPacketTypes::from(byte_buffer[0]);
+
+            match packet_type {
+                UdpPacketTypes::GameState => {
+                    self.socket.peek_from(&mut self.min_buf)?;
+
+                    let num_bytes = GameState_sim::get_num_bytes(&self.min_buf);
+                    state_set_buf.resize(num_bytes, 0);
+                    self.socket.recv_from(&mut state_set_buf)?;
+                }
+                UdpPacketTypes::Connection => {
+                    println!("Connection established to {src}");
+                }
+                UdpPacketTypes::Speed => {
+                    let mut speed_buffer = [0; f32::NUM_BYTES];
+                    self.socket.recv_from(&mut speed_buffer)?;
+                    let speed = f32::from_bytes(&speed_buffer);
+                    self.interval = Duration::from_secs_f32(1. / (120. * speed));
+                }
+                UdpPacketTypes::Paused => {
+                    self.socket.recv_from(&mut byte_buffer)?;
+                    self.pause = byte_buffer[0] == 1;
+                }
+                UdpPacketTypes::Quit | UdpPacketTypes::Render => {
+                    panic!("We shouldn't be receiving packets of type {packet_type:?}")
+                }
+            }
+        }
+    
+        // the socket didn't send a state back
+        if state_set_buf.is_empty() {
+            return Ok(None);
+        }
+    
+        Ok(Some(state_set_buf))
+    }
+
+    // just to make sure the speed value doesn't get updated from the initial speed sent back
+    fn handle_ret_msg_init(
+        &mut self,
     ) -> io::Result<bool> {
         let mut state_set_buf = Vec::new();
     
-        while socket.peek_from(min_state_set_buf).is_ok() {
-            // the socket sent data back
-            // this is the other side telling us to update the game state
-            let num_bytes = GameState_sim::get_num_bytes(min_state_set_buf);
-            state_set_buf = vec![0; num_bytes];
-            socket.recv_from(&mut state_set_buf)?;
+        let mut byte_buffer = [0];
+
+        while let Ok((_, src)) = self.socket.recv_from(&mut byte_buffer) {
+            let packet_type = UdpPacketTypes::from(byte_buffer[0]);
+
+            match packet_type {
+                UdpPacketTypes::GameState => {
+                    self.socket.peek_from(&mut self.min_buf)?;
+
+                    let num_bytes = GameState_sim::get_num_bytes(&self.min_buf);
+                    state_set_buf.resize(num_bytes, 0);
+                    self.socket.recv_from(&mut state_set_buf)?;
+                }
+                UdpPacketTypes::Connection => {
+                    println!("Connection established to {src}");
+                }
+                UdpPacketTypes::Speed => {
+                    let mut speed_buffer = [0; f32::NUM_BYTES];
+                    self.socket.recv_from(&mut speed_buffer)?;
+                    // let speed = f32::from_bytes(&speed_buffer);
+                    // self.interval = Duration::from_secs_f32(1. / (120. * speed));
+                }
+                UdpPacketTypes::Paused => {
+                    self.socket.recv_from(&mut byte_buffer)?;
+                    // self.paused = byte_buffer[0] == 1;
+                }
+                UdpPacketTypes::Quit | UdpPacketTypes::Render => {
+                    panic!("We shouldn't be receiving packets of type {packet_type:?}")
+                }
+            }
         }
     
-        // the socket didn't send data back
+        // the socket didn't send a state back
         if state_set_buf.is_empty() {
             return Ok(false);
         }
-    
-        // set the game state
-        // let game_state = GameState_sim::from_bytes(&state_set_buf);
-        // if let Err(e) = arena.pin_mut().set_game_state(&game_state) {
-        //     println!("Error setting game state: {e}");
-        // };
     
         Ok(true)
     }
