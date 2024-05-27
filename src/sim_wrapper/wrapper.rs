@@ -570,6 +570,7 @@ impl RocketsimWrapper {
 
             car_ids.clear();
             self.car_id_map.clear();
+            self.prev_touched_ticks.clear();
     
             // let mut car_ids = Vec::new();
             if new_config.spawn_opponents {
@@ -578,6 +579,8 @@ impl RocketsimWrapper {
                 for _ in 0..new_config.team_size {
                     let car_id = self.arena.pin_mut().add_car(Team::Blue, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
+                    // not really necessary to insert 0 here but why not
+                    self.prev_touched_ticks.insert(car_id, 0);
                     car_ids.push(car_id);
                     i += 1;
                 }
@@ -585,6 +588,7 @@ impl RocketsimWrapper {
                 for _ in 0..new_config.team_size {
                     let car_id = self.arena.pin_mut().add_car(Team::Orange, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
+                    self.prev_touched_ticks.insert(car_id, 0);
                     car_ids.push(car_id);
                     i += 1;
                 }
@@ -594,6 +598,7 @@ impl RocketsimWrapper {
                 for _ in 0..new_config.team_size as u32 {
                     let car_id = self.arena.pin_mut().add_car(Team::Blue, new_config.car_config);
                     self.car_id_map.insert(car_id, i);
+                    self.prev_touched_ticks.insert(car_id, 0);
                     car_ids.push(car_id);
                     i += 1;
                 }
