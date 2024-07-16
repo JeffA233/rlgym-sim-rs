@@ -93,7 +93,7 @@ mod tests{
     
     #[test]
     fn replay_setter_load_threes(){
-        rocketsim_rs::init(None);
+        rocketsim_rs::init(None, false);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
@@ -113,7 +113,7 @@ mod tests{
 
     #[test]
     fn replay_setter_load_ones(){
-        rocketsim_rs::init(None);
+        rocketsim_rs::init(None, false);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 1, spawn_opponents: true,
             gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
@@ -150,7 +150,7 @@ mod tests{
 
     #[test]
     fn replay_setter_random_boost(){
-        rocketsim_rs::init(None);
+        rocketsim_rs::init(None, false);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);
@@ -167,7 +167,7 @@ mod tests{
 
     #[test]
     fn replay_setter_random_pads(){
-        rocketsim_rs::init(None);
+        rocketsim_rs::init(None, false);
         let gameconfig = crate::envs::game_match::GameConfig{team_size: 3, spawn_opponents: true,
              gravity: 1., boost_consumption: 1., tick_skip: 8, car_config: CarConfig::octane(),};
         let mut sim = RocketsimWrapper::new(gameconfig);

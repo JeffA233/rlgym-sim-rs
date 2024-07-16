@@ -24,7 +24,7 @@ fn main() {
     let mut actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
 
     // We must do this now as we only want to initialize RocketSim once across the entire program.
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
 
     let game_config = GameConfig {
         tick_skip: 1,

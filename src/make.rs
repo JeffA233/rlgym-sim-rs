@@ -26,7 +26,7 @@ use crate::{
 /// use rocketsim_rs::sim::CarConfig;
 ///
 /// 
-/// rocketsim_rs::init(None);
+/// rocketsim_rs::init(None, false);
 /// 
 /// let config = GameConfig {
 ///     tick_skip: 1,
@@ -98,7 +98,7 @@ impl Default for RenderConfig {
 ///
 /// use rocketsim_rs::sim::CarConfig;
 /// 
-/// rocketsim_rs::init(None);
+/// rocketsim_rs::init(None, false);
 /// 
 /// let config = GameConfig {
 ///     tick_skip: 1,

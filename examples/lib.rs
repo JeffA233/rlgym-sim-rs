@@ -263,7 +263,7 @@ pub enum WorkerPacket {
 impl GymManager {
     #[new]
     pub fn new(match_nums: Vec<usize>, gravity_nums: Vec<f32>, boost_nums: Vec<f32>, self_plays: Vec<bool>, tick_skip: usize, reward_file_name: String) -> Self {
-        rocketsim_rs::init(None);
+        rocketsim_rs::init(None, false);
         let mut recv_vec = Vec::<Receiver<WorkerPacket>>::new();
         let mut send_vec = Vec::<Sender<ManagerPacket>>::new();
         let mut thrd_vec = Vec::<JoinHandle<()>>::new();

@@ -78,7 +78,7 @@ fn render_test() {
 
     let mut actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
 
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
     
     let config = GameConfig {
         tick_skip,

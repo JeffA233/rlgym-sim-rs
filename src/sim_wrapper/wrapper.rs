@@ -59,7 +59,7 @@ impl RocketsimWrapper {
         // TODO: input more game config stuff here
         // rocketsim start
         // required only once for all threads so we should do it before the multithreading parts instead of here
-        // rocketsim_rs::init(None);
+        // rocketsim_rs::init(None, false);
         let mut rocket_sim_instance = Arena::default_standard();
 
         let mut sim_mutator_config = rocket_sim_instance.get_mutator_config();

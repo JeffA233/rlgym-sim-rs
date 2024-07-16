@@ -100,7 +100,7 @@ fn general_test() {
     let state_set = Box::new(DefaultStateTesterPitched::new());
     let mut actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     // let actions2 = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.], vec![2., 1., 0., 1., 0., 1., 0., 1.]];
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
     let tick_skip = 1;
     let config = GameConfig {
         tick_skip,
@@ -502,7 +502,7 @@ fn general_test() {
     let state_set = Box::new(DefaultStateTester::new());
     // let actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
     let actions2 = vec![vec![1., 0., 0., 0., 0., 0., 1., 0.], vec![1., 0., 0., 0., 0., 0., 1., 0.]];
-    // rocketsim_rs::init(None);
+    // rocketsim_rs::init(None, false);
     let tick_skip = 1;
     let config = GameConfig {
         tick_skip,

@@ -60,7 +60,7 @@ fn team_change_test() {
     let act_parse = Box::new(TestAction::new());
     let state_set = Box::new(DefaultStateTester::new());
     let actions = vec![vec![2., 1., 0., 1., 0., 1., 0., 1.]];
-    rocketsim_rs::init(None);
+    rocketsim_rs::init(None, false);
     let tick_skip = 1;
     let config = GameConfig {
         tick_skip,
