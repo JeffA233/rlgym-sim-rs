@@ -19,11 +19,11 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 ndarray = { version = "0.15.6"}
 rand = { version = "0.8.5", features=["small_rng"]}
-zip = { version = "2.1.0"}
-rocketsim_rs = {version = "0.32.0", features=["bin", "serde_utils"]}
+zip = { version = "2.2.0"}
+rocketsim_rs = {version = "0.33.0", features=["bin", "serde_utils"]}
 memmap2 = {version = "0.9.4"}
 ndarray-npy = {version = "0.8.1"}
-serde = {version = "1.0.201", features = ["derive"]}
+serde = {version = "1.0.210", features = ["derive"]}
 serde_arrays = {version = "0.1.0"}
 
 # [build]
