@@ -93,14 +93,16 @@ impl Gym {
         };
 
         self._game_match.episode_reset(&gym_state);
-        self._prev_state = gym_state.clone();
 
-        self._game_match.build_observations(&gym_state)
+        let obs = self._game_match.build_observations(&gym_state);
+        self._prev_state = gym_state;
         // TODO return Option except that state and get_result don't match
         // if _return_info {
         //     let mut h_m = HashMap::<&str,f64>::new();
         //     h_m.insert("result", self._game_match.get_result(state) as f64);
         // }
+
+        obs
     }
 
     pub fn step(&mut self, actions: Vec<Vec<f32>>) -> (Vec<Vec<f32>>, Vec<f32>, bool, HashMap<String, f32>) {
@@ -145,10 +147,10 @@ impl Gym {
 
         let obs = self._game_match.build_observations(&gym_state);
         let done = self._game_match.is_done(&gym_state);
-        self._prev_state = gym_state.clone();
         let reward = self._game_match.get_rewards(&gym_state, done);
         let mut info = HashMap::<String, f32>::new();
         info.insert("result".to_string(), self._game_match.get_result(&gym_state) as f32);
+        self._prev_state = gym_state;
         (obs, reward, done, info)
     }
 
