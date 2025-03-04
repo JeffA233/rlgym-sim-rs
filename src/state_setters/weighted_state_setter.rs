@@ -1,4 +1,4 @@
-use rand::{distributions::{weighted::WeightedIndex, Distribution}, thread_rng, Rng, rngs::SmallRng, SeedableRng};
+use rand::{distr::{weighted::WeightedIndex, Distribution}, rng, Rng, rngs::SmallRng, SeedableRng};
 
 use super::{state_setter::StateSetter, wrappers::state_wrapper::StateWrapper};
 
@@ -15,7 +15,7 @@ impl WeightedSampleSetter {
         let distribution = WeightedIndex::new(&weights).unwrap();
         let seed = match seed {
             Some(seed) => seed,
-            None => thread_rng().gen_range(0..10000),
+            None => rng().random_range(0..10000),
         };
         let rng = SmallRng::seed_from_u64(seed);
         WeightedSampleSetter { state_setters, distribution, rng }

@@ -31,7 +31,7 @@ impl RewardFn for CombinedReward {
             rewards.push(struc.get_reward(player, state));
         }
         let ret = element_mult_vec(&rewards, &self.reward_weights);
-        return ret.iter().sum();
+        ret.iter().sum()
     }
 
     fn get_final_reward(&mut self, player: &PlayerData, state: &GameState) -> f32 {
@@ -40,6 +40,6 @@ impl RewardFn for CombinedReward {
             rewards.push(struc.get_reward(player, state));
         }
         let ret = element_mult_vec(&rewards, &self.reward_weights);
-        return ret.iter().sum();
+        ret.iter().sum()
     }
 }

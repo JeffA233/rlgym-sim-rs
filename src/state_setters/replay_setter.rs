@@ -16,9 +16,9 @@ pub struct ReplaySetter<'a> {
     random_pads: bool,
 }
 
-impl<'a> ReplaySetter<'a> {
+impl ReplaySetter<'_> {
     pub fn new(file_str: &str, random_boost: Option<bool>, random_pads: Option<bool>) -> Self {
-        let rng = SmallRng::from_entropy();
+        let rng = SmallRng::from_os_rng();
         let file = File::open(file_str).expect("Make sure your file exists");
         let mmap = unsafe { Mmap::map(&file).unwrap() };
         let mmap_leaked: &'static Mmap = Box::leak(Box::new(mmap));
@@ -38,7 +38,7 @@ impl<'a> ReplaySetter<'a> {
             car.set_lin_vel(Some(data[i + 6]), Some(data[i + 7]), Some(data[i + 8]));
             car.set_ang_vel(Some(data[i + 9]), Some(data[i + 10]), Some(data[i + 11]));
             if self.random_boost{
-                car.boost = self.rng.gen_range(0.0..=1.);
+                car.boost = self.rng.random_range(0.0..=1.);
             } 
             else{
                 car.boost = data[i + 12];
@@ -56,7 +56,7 @@ impl<'a> ReplaySetter<'a> {
     fn set_pads(&mut self, state_wrapper: &mut StateWrapper){
         let big_pads = [3, 4, 15, 18, 29, 30];
         for (i, pad) in state_wrapper.pads.iter_mut().enumerate(){
-            pad.is_active = self.rng.gen_bool(0.5);
+            pad.is_active = self.rng.random_bool(0.5);
             if !pad.is_active {
                 if big_pads.contains(&i){
                     pad.cooldown = 10.;
@@ -69,9 +69,9 @@ impl<'a> ReplaySetter<'a> {
     }
 }
 
-impl<'a> StateSetter for ReplaySetter<'a> {
+impl StateSetter for ReplaySetter<'_> {
     fn reset(&mut self, state_wrapper: &mut StateWrapper) {
-        let index = self.rng.gen_range(0..self.states.dim().0);
+        let index = self.rng.random_range(0..self.states.dim().0);
         let binding = self.states.index_axis(Axis(0), index);
         let state = binding.as_slice().unwrap();
         Self::set_ball(state_wrapper, state);

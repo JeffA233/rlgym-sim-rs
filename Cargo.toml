@@ -17,13 +17,13 @@ crate-type = ["cdylib", "rlib"]
 # doctest = false
 
 [dependencies]
-ndarray = { version = "0.15.6"}
-rand = { version = "0.8.5", features=["small_rng"]}
-zip = { version = "2.2.0"}
-rocketsim_rs = {version = "0.33.0", features=["bin", "serde_utils"]}
-memmap2 = {version = "0.9.4"}
-ndarray-npy = {version = "0.8.1"}
-serde = {version = "1.0.210", features = ["derive"]}
+ndarray = { version = "0.16.1"}
+rand = { version = "0.9.0", features=["small_rng"]}
+zip = { version = "2.2.3"}
+rocketsim_rs = {version = "0.34.0", features=["bin", "serde_utils"]}
+memmap2 = {version = "0.9.5"}
+ndarray-npy = {version = "0.9.1"}
+serde = {version = "1.0.218", features = ["derive"]}
 serde_arrays = {version = "0.1.0"}
 
 # [build]

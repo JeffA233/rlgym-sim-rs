@@ -1,4 +1,4 @@
-use rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
+use rand::{rngs::SmallRng, rng, Rng, SeedableRng};
 use std::f32::consts::PI;
 
 use crate::gamestates::physics_object::{Position, Velocity, EulerAngle};
@@ -18,7 +18,7 @@ impl DefaultState {
     pub fn new(seed: Option<u64>) -> Self {
         let seed = match seed {
             Some(seed) => seed,
-            None => thread_rng().gen_range(0..10000),
+            None => rng().random_range(0..10000),
         };
         let rng = SmallRng::seed_from_u64(seed);
         DefaultState {
@@ -55,7 +55,7 @@ impl StateSetter for DefaultState {
         // let mut rng = rand::thread_rng();
 
         // this is to try to rearrange the order in a randomized way
-        spawn_inds.sort_by_cached_key(|_| self.rng.gen::<usize>());
+        spawn_inds.sort_by_cached_key(|_| self.rng.random::<u32>());
 
         let mut blue_count = 0;
         let mut orange_count = 0;

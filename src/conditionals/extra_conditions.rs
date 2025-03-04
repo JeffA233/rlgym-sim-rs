@@ -22,8 +22,7 @@ impl TerminalCondition for CombinedTerminalConditions {
     }
 
     fn is_terminal(&mut self, current_state: &GameState) -> bool {
-        self.conditionals.iter_mut().map(|f| f.is_terminal(current_state))
-        .any(|x| x)
+        self.conditionals.iter_mut().any(|f| f.is_terminal(current_state))
     }
 }
 

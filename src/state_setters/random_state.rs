@@ -1,4 +1,5 @@
 use rand::prelude::*;
+use rand::rng;
 use std::f32::consts::PI;
 
 use crate::math::rand_vec3;
@@ -28,7 +29,7 @@ impl RandomState {
         let cars_on_ground = cars_on_ground.unwrap_or(false);
         let seed = match seed {
             Some(seed) => seed,
-            None => thread_rng().gen_range(0..10000),
+            None => rng().random_range(0..10000),
         };
         let rng = SmallRng::seed_from_u64(seed);
 
@@ -48,9 +49,9 @@ impl RandomState {
     fn _reset_ball_random(&mut self, state_wrapper: &mut StateWrapper, random_speed: bool) {
         // let mut rng  = rand::thread_rng();
         state_wrapper.ball.set_pos(
-            Some(self.rng.gen::<f32>() * X_MAX - X_MAX / 2.),
-            Some(self.rng.gen::<f32>() * Y_MAX - Y_MAX / 2.),
-            Some(self.rng.gen::<f32>() * Z_MAX_BALL + 100.),
+            Some(self.rng.random::<f32>() * X_MAX - X_MAX / 2.),
+            Some(self.rng.random::<f32>() * Y_MAX - Y_MAX / 2.),
+            Some(self.rng.random::<f32>() * Z_MAX_BALL + 100.),
         );
         // Z lower bound check
         if state_wrapper.ball.position.z < 94. {
@@ -72,9 +73,9 @@ impl RandomState {
         // let cars = &mut state_wrapper.cars;
         for car in &mut state_wrapper.cars {
             car.set_pos(
-                Some(self.rng.gen::<f32>() * X_MAX - X_MAX / 2.),
-                Some(self.rng.gen::<f32>() * Y_MAX - Y_MAX / 2.),
-                Some(self.rng.gen::<f32>() * Z_MAX_CAR + 150.),
+                Some(self.rng.random::<f32>() * X_MAX - X_MAX / 2.),
+                Some(self.rng.random::<f32>() * Y_MAX - Y_MAX / 2.),
+                Some(self.rng.random::<f32>() * Z_MAX_CAR + 150.),
             );
             // Z lower bound check
             if car.position.z < 100. {
@@ -82,12 +83,12 @@ impl RandomState {
             }
 
             car.set_rot(
-                Some(self.rng.gen::<f32>() * PITCH_MAX - PITCH_MAX / 2.),
-                Some(self.rng.gen::<f32>() * YAW_MAX - YAW_MAX / 2.),
-                Some(self.rng.gen::<f32>() * ROLL_MAX - ROLL_MAX / 2.),
+                Some(self.rng.random::<f32>() * PITCH_MAX - PITCH_MAX / 2.),
+                Some(self.rng.random::<f32>() * YAW_MAX - YAW_MAX / 2.),
+                Some(self.rng.random::<f32>() * ROLL_MAX - ROLL_MAX / 2.),
             );
 
-            car.boost = self.rng.gen::<f32>();
+            car.boost = self.rng.random::<f32>();
 
             if random_speed {
                 let lin_vel = rand_vec3(2300., &mut self.rng);
@@ -99,7 +100,7 @@ impl RandomState {
                 car.set_ang_vel(Some(0.), Some(0.), Some(0.));
             }
 
-            if on_ground || self.rng.gen::<f32>() < 0.5 {
+            if on_ground || self.rng.random::<f32>() < 0.5 {
                 car.set_pos(None, None, Some(17.));
                 car.set_lin_vel(None, None, Some(0.));
                 car.set_rot(Some(0.), None, Some(0.));

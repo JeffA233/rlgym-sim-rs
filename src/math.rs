@@ -7,7 +7,7 @@
 
 // use numpy::*;
 // use ndarray::*;
-use rand::{rngs::SmallRng, thread_rng, Rng};
+use rand::{rngs::SmallRng, rng, Rng};
 
 use crate::gamestates::physics_object::RotationMatrix;
 
@@ -110,7 +110,7 @@ pub fn scalar_projection(vec: &[f32], dest_vec: &[f32]) -> f32 {
     if norm == 0. {
         return 0.;
     }
-    return (element_mult_vec(vec, dest_vec).iter().sum::<f32>()) / norm;
+    (element_mult_vec(vec, dest_vec).iter().sum::<f32>()) / norm
 }
 
 /// norm squared
@@ -284,8 +284,8 @@ pub fn cosine_similarity(a: Vec<f32>, b: Vec<f32>) -> f32 {
 /// initializes a randomized Vec<f32> of length 3
 pub fn rand_uvec3() -> Vec<f32> {
     let mut vec: Vec<f32> = Vec::new();
-    let mut rng = thread_rng();
-    let rand_num = rng.gen_range((0.)..1.);
+    let mut rng = rng();
+    let rand_num = rng.random_range((0.)..1.);
     for _ in 0..3 {
         vec.push(rand_num - 0.5);
     }
@@ -300,7 +300,7 @@ pub fn rand_uvec3() -> Vec<f32> {
 pub fn rand_vec3(max_norm: f32, rng: &mut SmallRng) -> Vec<f32> {
     let mut res: Vec<f32> = vec![0., 0., 0.];
     for i in res.iter_mut() {
-        let rand_num = rng.gen::<f32>();
+        let rand_num = rng.random::<f32>();
         let partial = rand_num * max_norm;
         *i = partial;
     }
