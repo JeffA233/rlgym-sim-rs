@@ -11,10 +11,7 @@ use crate::{
         physics_object::{PhysicsObject, Position, Velocity},
         player_data::PlayerData,
     },
-    state_setters::wrappers::{
-        state_wrapper::StateWrapper, 
-        // car_wrapper::CarWrapper
-    }, 
+    state_setters::wrappers::state_wrapper::StateWrapper, 
     envs::game_match::GameConfig,
 };
 
@@ -39,8 +36,6 @@ pub struct RocketsimWrapper {
     car_ids: Vec<u32>,
     tick_skip: usize,
     car_config: &'static CarConfig,
-    // blue_score: i32,
-    // orange_score: i32,
     jump_timer: f32,
     prev_touched_ticks: HashMap<u32, u64>,
     car_id_map: HashMap<u32, i32>,
@@ -320,9 +315,7 @@ impl RocketsimWrapper {
 
         self.arena.pin_mut().set_game_state(&sim_state).unwrap();
 
-        // println!("Set ball state");
-        // let sim_state = self.arena.pin_mut().get_game_state();
-        // let gamestate = self.decode_gamestate(sim_state);
+
         self.get_rlgym_gamestate(get_sim_state)
     }
 
@@ -507,9 +500,25 @@ impl RocketsimWrapper {
         }
         players.sort_unstable_by_key(|p| p.car_id);
 
-        // TODO: make this just the actual boost pad stats instead of is_active
         let mut pad_vec = [BoostPad::default(); 34];
         for (pad, vec_item) in sim_gamestate.pads.iter().zip(&mut pad_vec) {
+            let mut pad_store = *pad;
+
+            // NOTE: whenever we use data directly from rocketsim, we have to convert the ids, unless we switch to using rocketsim's ids
+            let car_id_op = self.car_id_map.get(&pad_store.state.cur_locked_car_id);
+            let rlgym_car_id = match car_id_op {
+                Some(val) => *val,
+                None => -1
+            };
+            pad_store.state.cur_locked_car_id = rlgym_car_id as u32;
+
+            let car_id_op = self.car_id_map.get(&pad_store.state.prev_locked_car_id);
+            let rlgym_car_id = match car_id_op {
+                Some(val) => *val,
+                None => -1
+            };
+            pad_store.state.prev_locked_car_id = rlgym_car_id as u32;
+
             *vec_item = *pad;
         }
         let mut pad_reversed = pad_vec;
