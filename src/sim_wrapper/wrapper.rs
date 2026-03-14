@@ -519,10 +519,11 @@ impl RocketsimWrapper {
             };
             pad_store.state.prev_locked_car_id = rlgym_car_id as u32;
 
-            *vec_item = *pad;
+            *vec_item = pad_store;
         }
         let mut pad_reversed = pad_vec;
         pad_reversed.reverse();
+        
         GameState_rlgym {
             game_type: 0,
             blue_score,
